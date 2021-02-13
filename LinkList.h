@@ -194,9 +194,14 @@ public:
             append(val);
             return iterator(m_end->previous());
         }
-
-	iterator erase(iterator pos)
-	{
+        Node *next = before.__getNode();
+        Node *prev = next->previous();
+        Node *newNode = new Node(new T(val), next, prev);
+        next->setPrevious(newNode);
+        prev->setNext(newNode);
+        ++m_size;
+        return iterator(newNode);
+    }
     iterator erase(iterator delIter)
     {
         Q_ASSERT_X(delIter.__getNode(), "LinkList::erase", "The specified iterator argument 'delIter' is invalid");
