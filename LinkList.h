@@ -179,16 +179,16 @@ public:
         ++m_size;
     }
 
-    iterator insert(const T& val, iterator iter)
+    iterator insert(const T& val, iterator before)
     {
-        Q_ASSERT_X(iter.__getNode(), "LinkList::insert", "The specified iterator argument 'before' is invalid");
-        if(!iter.__getNode())
+        Q_ASSERT_X(before.__getNode(), "LinkList::insert", "The specified iterator argument 'before' is invalid");
+        if(!before.__getNode())
             return iterator();
-        if(iter.__getNode() == m_begin) {
+        else if(before.__getNode() == m_begin) {
             prepend(val);
             return iterator(m_begin);
         }
-        else if(iter.__getNode() == m_end) {
+        else if(before.__getNode() == m_end) {
             append(val);
             return iterator(m_end->previous());
         }
