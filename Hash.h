@@ -92,36 +92,35 @@ const uint Hash<KeyLen, Val>::initCapacity = 500;
 template<uint KeyLen, typename Val>
 void Hash<KeyLen, Val>::insert(const char *key, const Val &value)
 {
-    if(m_size > m_capacity * 0.4)
-        resize();
+    if(m_size > m_capacity * 0.8)
+        resize(static_cast<uint>(m_capacity * 1.5));
     uint seg = hashFunction(key);
-    for(uint i = seg; seg < m_capacity; ++i) {
-        if(std::strcmp(m_elements[seg].m_key, key) == 0) {
-            *m_elements[seg].m_val = value;
+    for(uint i = 0; seg < m_capacity; ++i) {
+        if(std::strncmp(m_elements[seg].m_key, key, KeyLen) == 0) {
+            m_elements[seg].m_val = value;
             return;
         }
-        else if(std::strcmp(m_elements[seg].m_key, deletedSegment) == 0 ||
-                std::strcmp(m_elements[seg].m_key, emptySegment) == 0) {
-            m_elements[seg].m_val = new Val(value);
-            std::strncpy(m_elements[seg].m_key, KeyLen, key);
+        else if(std::strncmp(m_elements[seg].m_key, deletedSegment, KeyLen) == 0 ||
+                std::strncmp(m_elements[seg].m_key, emptySegment, KeyLen) == 0) {
+            m_elements[seg].m_val = value;
+            std::strncpy(m_elements[seg].m_key, key, KeyLen);
             ++m_size;
             return;
         }
         else
             linearTesting(i, seg);
     }
-    resize();
+    resize(static_cast<uint>(m_capacity * 1.5));
     insert(key, value);
 }
 
-template<int KeyLen, typename Val>
+template<uint KeyLen, typename Val>
 void Hash<KeyLen, Val>::erase(const char *key)
 {
     uint seg = hashFunction(key);
     for(uint i = 0; seg < m_capacity; ++i) {
-        if(std::strcmp(key, m_elements[seg].m_key) == 0) {
-            std::strncpy(m_elements[seg].m_key, KeyLen, deletedSegment);
-            delete m_elements[seg].m_val;
+        if(std::strncmp(key, m_elements[seg].m_key, KeyLen) == 0) {
+            std::strncpy(m_elements[seg].m_key, deletedSegment, KeyLen);
             --m_size;
             return;
         }
