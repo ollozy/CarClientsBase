@@ -78,13 +78,13 @@ public:
         if (m_ptr == nullptr) return *this;
 
         ListIterator temp = *this;
-        ++(*this);
+        --(*this);
         return temp;
     }
     ListIterator operator--()
     {
         if (m_ptr == nullptr) return *this;
-        m_ptr = m_ptr->next();
+        m_ptr = m_ptr->previous();
         return *this;
     }
 
@@ -169,14 +169,10 @@ public:
     }
     void prepend(const T &val)
     {
-        if(isEmpty()) {
-            *m_begin->data() = val;
-            m_end = new Node(new T(), nullptr, m_begin);
-            m_begin->setNext(m_end);
-        }
+        if(isEmpty())
+            append(val);
         else {
-            *m_begin->data() = val;
-            Node *newBegin = new Node(new T(), m_begin, nullptr);
+            Node *newBegin = new Node(new T(val), m_begin, nullptr);
             m_begin->setPrevious(newBegin);
             m_begin = newBegin;
         }
@@ -185,17 +181,21 @@ public:
 
     iterator insert(const T& val, iterator iter)
 	iterator erase_after(iterator pos)
-	{
-		if (pos->next() == m_begin) {
-			m_begin = m_begin->next();
-		}
-		Node* iter = pos._getPtr();
-		Node* newNext = iter->next()->next();
-		delete iter->next();
+    {
+        Q_ASSERT_X(iter.__getNode(), "LinkList::insert", "The specified iterator argument 'before' is invalid");
+        if(!iter.__getNode())
+            return iterator();
+        if(iter.__getNode() == m_begin) {
+            prepend(val);
+            return iterator(m_begin);
+        }
+        else if(iter.__getNode() == m_end) {
+            append(val);
+            return iterator(m_end->previous());
 		iter->setNext(newNext);
 		--m_size;
 		return iterator(iter);
-	}
+        }
 
 	iterator erase(iterator pos)
 	{
