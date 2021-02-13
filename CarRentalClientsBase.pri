@@ -1,4 +1,9 @@
 SOURCES += \
-        main.cpp
+        $$PWD/Hash.cpp \
+        $$PWD/main.cpp
 
-RESOURCES += qml.qrc
+RESOURCES += \
+        $$PWD/qml.qrc
+
+HEADERS += \
+        $$PWD/Hash.h
