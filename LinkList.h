@@ -107,11 +107,8 @@ public:
     LinkList() : m_end(m_begin), m_begin(new Node(new T(), nullptr, nullptr)), m_size(0) {}
     LinkList(const LinkList<T>& li)
     {
-        LinkList<T>::iterator it = li.begin();
-        LinkList<T>::iterator thisIt;
-        thisIt = insert(begin(), *it++);
-        while (it != li.begin())
-            thisIt = insert(thisIt, *it++);
+        for(LinkList<T>::iterator iter = li.begin(); iter != li.end(); ++iter)
+            append(*iter);
     }
     ~LinkList()
     {
