@@ -2,3 +2,15 @@
 *.user
 
 CarRentalClientBase
+
+build-5.14.2/CarRentalClientsBase/main_qml.o
+
+build-5.14.2/CarRentalClientsBase/main.o
+
+build-5.14.2/CarRentalClientsBase/qmlcache_loader.o
+
+build-5.14.2/CarRentalClientsBase/qrc_qml.o
+
+CarRentalClientsBase.debug
+
+CarRentalClientsBase
