@@ -133,9 +133,24 @@ public:
     }
     T& operator[](int i)
     {
-		bool isEqual = true;
-		if (li.size() != size())
-			return false;
+        Q_ASSERT_X(i < m_size, "LinkList<T>::operator[]", "index out of range");
+        if(!(i < m_size))
+            return *m_end->data();
+        Node *pNode = m_begin;
+        for(int j = 0; i != j; ++j)
+            pNode = pNode->next();
+        return *pNode->data();
+    }
+    const T& operator[](int i) const
+    {
+        Q_ASSERT_X(i < m_size, "LinkList<T>::operator[]", "index out of range");
+        if(!(i < m_size))
+            return *m_end->data();
+        Node *pNode = m_begin;
+        for(int j = 0; i != j; ++j)
+            pNode = pNode->next();
+        return *pNode->data();
+    }
 
     void append(const T &val)
     {
