@@ -3,12 +3,6 @@
 
 CarRentalClientBase
 
-build-5.14.2/app/app
-
-build-5.14.2/app/main.o
-
-build-5.14.2/app/qrc_qml.o
-
 build-5.14.2/CarRentalClientsBase/main_qml.o
 
 build-5.14.2/CarRentalClientsBase/main.o
@@ -17,8 +11,14 @@ build-5.14.2/CarRentalClientsBase/qmlcache_loader.o
 
 build-5.14.2/CarRentalClientsBase/qrc_qml.o
 
-*.autosave
-
-*.o
+CarRentalClientsBase.debug
 
 CarRentalClientsBase
+
+build-5.14.2/app/app
+
+build-5.14.2/app/main.o
+
+build-5.14.2/app/qrc_qml.o
+
+LinkList.h.autosave

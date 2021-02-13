@@ -4,6 +4,8 @@ SOURCES += \
 
 RESOURCES += \
         $$PWD/qml.qrc
+HEADERS += \
+        LinkList.h
 
 HEADERS += \
         $$PWD/Hash.h
