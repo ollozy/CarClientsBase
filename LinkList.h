@@ -195,23 +195,31 @@ public:
 
 	iterator erase(iterator pos)
 	{
-		if (pos == begin())
-			m_begin = m_begin->next();
+    iterator erase(iterator delIter)
+    {
+        Q_ASSERT_X(delIter.__getNode(), "LinkList::erase", "The specified iterator argument 'delIter' is invalid");
+        if(!delIter.__getNode())
+            return iterator();
+        else if(delIter.__getNode() == m_begin) {
+            Node *newBegin = m_begin->next();
+            newBegin->setPrevious(nullptr);
+            delete m_begin;
+            m_begin = newBegin;
+            --m_size;
+            return iterator(m_begin);
+        }
+        else if(delIter.__getNode() == m_end)
+            return delIter;
 
-		Node* iter = pos._getPtr();
-        //            m_begin = m_begin->next();
-		while (pos != iter->next())
-			iter = iter->next();
-
-        //        Node* iter = pos._getPtr();
-		Node* newNext = iter->next()->next();
-        //            iter = iter->next();
-		delete iter->next();
-        //        delete iter->next();
-		iter->setNext(newNext);
-		--m_size;
-		return iterator(newNext);
-	}
+        Node *delNode = delIter.__getNode();
+        Node *prev = delNode->previous();
+        Node *next = delNode->next();
+        prev->setNext(next);
+        next->setPrevious(prev);
+        delete delNode;
+        --m_size;
+        return iterator(next);
+    }
 
 	void clear()
 	{
