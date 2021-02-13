@@ -51,4 +51,29 @@ private:
     Data* m_elements;
 };
 
+template<int KeyLen, typename Val>
+void Hash<KeyLen, Val>::insert(const char *key, const Val &value)
+{
+    if(m_size > m_capacity * 0.4)
+        resize();
+    uint seg = hashFunction(key);
+    for(uint i = seg; seg < m_capacity; ++i) {
+        if(!std::strcmp(m_elements[seg].m_key, key)) {
+            m_elements[seg].m_val = value;
+            return;
+        }
+        else if(!std::strcmp(m_elements[seg].m_key, deletedSegment) ||
+                !std::strcmp(m_elements[seg].m_key, emptySegment)) {
+            m_elements[seg].m_val = value;
+            std::strncpy(m_elements[seg].m_key, KeyLen, key);
+            ++m_size;
+            return;
+        }
+        else
+            linearTesting(i, seg);
+    }
+    resize();
+    insert(key, value);
+}
+}
 #endif // HASH_H
