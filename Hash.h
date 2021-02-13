@@ -52,7 +52,8 @@ public:
     void erase(const char* key);
 
     void clear();
-    int operator[](const char* key) const;
+    Val &operator[](const char* key);
+    const Val &operator[](const char *key) const;
 
 
     void keys() const;
@@ -144,7 +145,28 @@ void Hash<KeyLen, Val>::clear()
     m_elements = new Data[m_capacity];
     m_multiCoef = static_cast<uint>(m_capacity / (maxHashFunc - minHashFunc));
 }
+
 template<uint KeyLen, typename Val>
+Val &Hash<KeyLen, Val>::operator[](const char *key)
+{
+    uint seg = hashFunction(key);
+    for (uint i = 0; seg < m_capacity; ++i) {
+        if (std::strncmp(m_elements[seg].m_key, key, KeyLen) == 0)
+            return m_elements[seg].m_val;
+        else {
+            linearTesting(i, seg);
+            continue;
+        }
+    }
+    Q_ASSERT_X(false, "Hash<KeyLen, Val>::operator[]", "access to hash with out of range key");
+    return m_elements[0].m_val;
+}
+
+template<uint KeyLen, typename Val>
+const Val &Hash<KeyLen, Val>::operator[](const char *key) const
+{
+    return operator[](key);
+}
 }
 const char *Hash<KeyLen, Val>::key(const Val &val) const
 {
