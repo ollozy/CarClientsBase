@@ -1,9 +1,8 @@
 SOURCES += \
-        $$PWD/Hash.cpp \
         $$PWD/main.cpp
 
 HEADERS += \
-        $$PWD/LinkList.h
+        $$PWD/LinkList.h \
         $$PWD/Hash.h
 
 RESOURCES += \
