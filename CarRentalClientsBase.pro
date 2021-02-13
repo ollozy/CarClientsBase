@@ -2,11 +2,11 @@ ROOT_DIR = $${PWD}
 
 QT += quick
 
-TARGET = CarRentalClientsBase
+TARGET = app
 
 CONFIG += c++11
 
-DESTDIR = $${ROOT_DIR}
+DESTDIR = $${ROOT_DIR}/build-$${QT_VERSION}/$${TARGET}
 CONFIG -= debug_and_release debug_and_release_target
 
 include(CarRentalClientsBase.pri)
