@@ -230,45 +230,15 @@ public:
         --m_size;
         return iterator(next);
     }
-
-	void clear()
-	{
-		Node* iter = m_begin;
-		while (!isEmpty()) {
-			if (iter->next() == m_begin) {
-				m_begin = m_begin->next();
-			}
-
-			Node* newNext = iter->next()->next();
-			delete iter->next();
-			iter->setNext(newNext);
-			--m_size;
-		}
-	}
-
-        //            Node* newNext = iter->next()->next();
-        //            delete iter->next();
-        //            iter->setNext(newNext);
-        //            --m_size;
-	*/
-	iterator find(const T& elem)
-	{
-		if (isEmpty())
-			return begin();
-		if (elem == *m_begin->data())
-			return begin();
-		iterator beg = begin();
-		iterator it = beg;
-		while (++it != beg) {
-			if(*it == elem)
-				return it;
-		}
-		return beg;
-	}
+    void clear()
+    {
+        while(!isEmpty())
+            erase(begin());
+    }
 
 private:
     Node *m_begin;
     Node *m_end;
     int m_size;
 };
-#endif //LINK_LIST
+#endif //LINK_LIST
