@@ -31,9 +31,12 @@ class Hash
     };
 
     struct Data {
-        Data() : m_val(0), m_key(new char[KeyLen]) { std::strncpy(m_key, KeyLen, emptySegment); }
-        ~Data() { delete[] m_key; delete m_val; }
-        Val *m_val;
+        explicit Data(Val val = Val()) noexcept
+            : m_val(val),
+              m_key(new char[KeyLen])
+        { std::strncpy(m_key, emptySegment, KeyLen); }
+        ~Data() { delete[] m_key; }
+        Val m_val;
         char* m_key;
     };
 
