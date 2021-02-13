@@ -24,6 +24,12 @@ class Hash
     static const uint maxHashFunc;
     static const uint linearStep;
     static const uint initCapacity;
+
+    union key_helper {
+        char c[KeyLen];
+        uint n;
+    };
+
     struct Data {
         Data() : m_val(0), m_key(new char[KeyLen]) { std::strncpy(m_key, KeyLen, emptySegment); }
         ~Data() { delete[] m_key; delete m_val; }
@@ -135,5 +141,23 @@ void Hash<KeyLen, Val>::clear()
     delete[] m_elements;
     m_elements = new Data[m_capacity]{Val()};
     m_multiCoef = m_capacity / 102;
+
+template<uint KeyLen, typename Val>
+unsigned int Hash<KeyLen, Val>::hashFunction(const char *key) const
+{
+    uint seg = 0;
+    key_helper helper;
+    std::strncpy(helper.c, key, KeyLen);
+    for(uint i = 0; i < KeyLen; ++i) {
+        seg += helper.n;
+    }
+    return ((seg - minHashFunc) * m_multiCoef) % m_capacity;
 }
+
+template<uint KeyLen, typename Val>
+void Hash<KeyLen, Val>::linearTesting(int tryNum, unsigned int &seg) const
+{
+    seg += linearStep * tryNum + tryNum % 2 + 1;
+}
+
 #endif // HASH_H
