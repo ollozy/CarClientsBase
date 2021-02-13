@@ -27,7 +27,7 @@ public:
     ~Hash() { delete[] m_elements; }
 
     void insert(const char* key, const Val& value);
-    bool erase(const char* key);
+    void erase(const char* key);
 
     void clear();
     int operator[](const char* key) const;
@@ -75,5 +75,19 @@ void Hash<KeyLen, Val>::insert(const char *key, const Val &value)
     resize();
     insert(key, value);
 }
+
+template<int KeyLen, typename Val>
+void Hash<KeyLen, Val>::erase(const char *key)
+{
+    uint seg = hashFunction(key);
+    for(int i = 0; seg < m_capacity; ++i) {
+        if(!std::strcmp(key, m_elements[seg].m_key)) {
+            std::strncpy(m_elements[seg].m_key, KeyLen, deletedSegment);
+            --m_size;
+            return;
+        }
+        else
+            linearTesting(i, seg);
+    }
 }
 #endif // HASH_H
