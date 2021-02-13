@@ -1,4 +1,9 @@
 SOURCES += \
         main.cpp
 
-RESOURCES += qml.qrc
+HEADERS += \
+        LinkList.h
+
+
+RESOURCES += \
+        qml.qrc

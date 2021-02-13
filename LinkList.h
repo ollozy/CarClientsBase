@@ -1,251 +1,244 @@
-#pragma once
-#include <iostream>
+#ifndef LINK_LIST
+#define LINK_LIST
+
+#include <QObject>
 
 template<typename T> class LinkList;
 template<typename Node> class ListIterator;
 
-//Шаблонный класс для хранения элементов и их указателей
 template<typename T>
 class node
 {
 public:
-	using Value = typename T;
+    using Value = T;
 
-	node() : m_data(), m_next(this) {}
-	node(Value* data) : m_data(data) { m_next = this; }
-	node(Value* data, node* next) : m_data(data), m_next(next) {}
+    node() : m_data(nullptr), m_next(this) {}
+    node(Value *data, node *next, node *prev)
+        : m_data(data)
+        , m_next(next)
+        , m_previous(prev) {}
 
-	~node() { delete m_data; }
+    ~node() { if(m_data) delete m_data; m_data = nullptr; }
 
-	//функции получения значений
+    node *previous() const { return m_previous; }
+    void setPrevious(node *prev) { m_previous = prev; }
 
-	//указатуль на следующий элемент в списке
-	node* next() const { return m_next; }
-	//даные
-	Value* data() const { return m_data; }
+    node *next() const { return m_next; }
+    void setNext(node *next) { m_next = next; }
 
-	//функции установки значений
-	void setData(Value* data) { m_data = data; }
-	void setNext(node* next) { m_next = next; }
+    Value *data() { return m_data; }
+    void setData(Value *data) { m_data = data; }
 
 private:
-	node* m_next;
-	Value* m_data;
+    node *m_next;
+    node *m_previous;
+    Value *m_data;
 };
 
-//Класс итератора для упращения обхода элементов
 template<typename Node>
 class ListIterator
 {
-	using ValueType = typename Node::Value;
+    using Value = typename Node::Value;
 public:
 
-	ListIterator(Node* data = nullptr) : m_ptr(data) {}
+    explicit ListIterator(Node* node = nullptr) : m_ptr(node) {}
+    ListIterator(const ListIterator &other) { m_ptr = other.m_ptr; }
 
-	//Перегруженные операторы
-	//operator Node() { return m_ptr; }
-	ValueType& operator*() { return *m_ptr->data(); }
-	Node* operator->() { return m_ptr; }
-	bool operator==(const ListIterator& rightIter) { return m_ptr == rightIter.m_ptr; }
-	bool operator!=(const ListIterator& rightIter) { return m_ptr != rightIter.m_ptr; }
-	bool operator==(Node* rightPtr) { return m_ptr == rightPtr; }
-	bool operator!=(Node* rightPtr) { return m_ptr != rightPtr; }
-	bool operator!() { return !m_ptr; }
-	operator ValueType* () { return m_ptr->data(); }
-	ListIterator operator++(int) 
-	{
-		if (m_ptr == nullptr) return *this;
+    ListIterator &operator=(const ListIterator &other)
+    {
+        if(this == &other)
+            return *this;
 
-		ListIterator temp = *this;
-		++(*this);
-		return temp;
-	}
-	ListIterator operator++() 
-	{
-		if (m_ptr == nullptr) return *this;
-		m_ptr = m_ptr->next();
-		return *this; 
-	}
+        m_ptr = other.m_ptr;
+        return *this;
+    }
+    Value& operator*() { return *m_ptr->data(); }
+    const Value &operator*() const { return *m_ptr->data(); }
+    Node *operator->() { return m_ptr; }
+    bool operator==(const ListIterator &rightIter) const { return m_ptr == rightIter.m_ptr; }
+    bool operator!=(const ListIterator &rightIter) const { return m_ptr != rightIter.m_ptr; }
+    bool operator!() const { return m_ptr == nullptr; }
+    operator Value () { return *m_ptr->data(); }
+    ListIterator operator++(int)
+    {
+        if (m_ptr == nullptr) return *this;
 
-	//Чтобы не добавлять класс как дружественный в LinkList<T>, функция объявлена как public
-	Node* _getPtr() const { return m_ptr; }
+        ListIterator temp = *this;
+        ++(*this);
+        return temp;
+    }
+    ListIterator operator++()
+    {
+        if (m_ptr == nullptr) return *this;
+        m_ptr = m_ptr->next();
+        return *this;
+    }
+    ListIterator operator--(int)
+    {
+        if (m_ptr == nullptr) return *this;
+
+        ListIterator temp = *this;
+        --(*this);
+        return temp;
+    }
+    ListIterator operator--()
+    {
+        if (m_ptr == nullptr) return *this;
+        m_ptr = m_ptr->previous();
+        return *this;
+    }
+
+    bool isValid() const { return m_ptr->data() != nullptr; }
+
+    Node *__getNode() const { return m_ptr; }
 
 private:
-	Node* m_ptr;
+    Node *m_ptr;
 };
 
-//Класс циклического списка
 template<typename T> 
 class LinkList
 {
-	using Node = node<T>;
-	friend class Node;
+    typedef node<T> Node;
+
 public:
-	using iterator = ListIterator<Node>;
+    typedef ListIterator<Node> iterator;
 
-	LinkList() : m_begin(nullptr), m_size(0) {}
-	//Конструктор копирования
-	LinkList(const LinkList<T>& li)
-	{
-		LinkList<T>::iterator it = li.begin();
-		LinkList<T>::iterator thisIt;
-		thisIt = insert(begin(), *it++);
-		while (it != li.begin()) 
-			thisIt = insert(thisIt, *it++);
-	}
-	~LinkList()
-	{
-		clear();
-		_CrtDumpMemoryLeaks();
-	}
+    LinkList() : m_end(m_begin), m_begin(new Node(new T(), nullptr, nullptr)), m_size(0) {}
+    LinkList(const LinkList<T>& li)
+    {
+        LinkList<T>::iterator it = li.begin();
+        LinkList<T>::iterator thisIt;
+        thisIt = insert(begin(), *it++);
+        while (it != li.begin())
+            thisIt = insert(thisIt, *it++);
+    }
+    ~LinkList()
+    {
+        clear();
+        delete m_begin;
+    }
 
-	//служебные методы возвращают размер списка, 
-	//проверку на пустоту списка и итератор на начало соответственно
-	int size() const { return m_size; }
-	bool isEmpty() const { return !m_size; }
-	iterator begin() const { return iterator(m_begin); }
+    int size() const { return m_size; }
+    bool isEmpty() const { return m_begin == m_end; }
+    iterator begin() const { return iterator(m_begin); }
+    iterator end() const { return iterator(m_end);}
 
-	LinkList<T>& operator=(const LinkList<T>& li)
-	{
-		if (this == &li)
-			return *this;
+    LinkList<T>& operator=(const LinkList<T>& li)
+    {
+        if (this == &li)
+            return *this;
 
-		LinkList<T>::iterator it = li.begin();
-		LinkList<T>::iterator thisIt;
+        for(LinkList<T>::iterator it = li.begin(); it != li.end(); ++it)
+            append(*it);
 
-		thisIt = insert(begin(), *it++);
-		while(it != li.begin())
-			thisIt = insert(thisIt, *it++);
+        return *this;
+    }
+    T& operator[](int i)
+    {
+        Q_ASSERT_X(i < m_size, "LinkList<T>::operator[]", "index out of range");
+        if(!(i < m_size))
+            return *m_end->data();
+        Node *pNode = m_begin;
+        for(int j = 0; i != j; ++j)
+            pNode = pNode->next();
+        return *pNode->data();
+    }
+    const T& operator[](int i) const
+    {
+        Q_ASSERT_X(i < m_size, "LinkList<T>::operator[]", "index out of range");
+        if(!(i < m_size))
+            return *m_end->data();
+        Node *pNode = m_begin;
+        for(int j = 0; i != j; ++j)
+            pNode = pNode->next();
+        return *pNode->data();
+    }
 
-		return *this;
-	}
-	bool operator==(const LinkList<T>& li)
-	{
-		bool isEqual = true;
-		if (li.size() != size())
-			return false;
+    void append(const T &val)
+    {
+        if(isEmpty()) {
+            *m_begin->data() = val;
+            m_end = new Node(new T(), nullptr, m_begin);
+            m_begin->setNext(m_end);
+        }
+        else {
+            *m_end->data() = val;
+            Node *newEnd = new Node(new T(), nullptr, m_end);
+            m_end->setNext(newEnd);
+            m_end = newEnd;
+        }
+        ++m_size;
+    }
+    void prepend(const T &val)
+    {
+        if(isEmpty()) {
+            append(val);
+            return;
+        }
+        else {
+            Node *newBegin = new Node(new T(val), m_begin, nullptr);
+            m_begin->setPrevious(newBegin);
+            m_begin = newBegin;
+        }
+        ++m_size;
+    }
 
-		LinkList<T>::iterator it = li.begin();
-		LinkList<T>::iterator thisIt = begin();
+    iterator insert(const T& val, iterator before)
+    {
+        Q_ASSERT_X(before.__getNode(), "LinkList::insert", "The specified iterator argument 'before' is invalid");
+        if(!before.__getNode())
+            return iterator();
+        else if(before.__getNode() == m_begin) {
+            prepend(val);
+            return iterator(m_begin);
+        }
+        else if(before.__getNode() == m_end) {
+            append(val);
+            return iterator(m_end->previous());
+        }
+        Node *next = before.__getNode();
+        Node *prev = next->previous();
+        Node *newNode = new Node(new T(val), next, prev);
+        next->setPrevious(newNode);
+        prev->setNext(newNode);
+        ++m_size;
+        return iterator(newNode);
+    }
+    iterator erase(iterator delIter)
+    {
+        Q_ASSERT_X(delIter.isValid(), "LinkList::erase", "The specified iterator argument 'delIter' is invalid");
+        if(!delIter.isValid())
+            return iterator();
+        else if(delIter.__getNode() == m_begin) {
+            Node *newBegin = m_begin->next();
+            newBegin->setPrevious(nullptr);
+            delete m_begin;
+            m_begin = newBegin;
+            --m_size;
+            return iterator(m_begin);
+        }
+        else if(delIter.__getNode() == m_end)
+            return delIter;
 
-		if (*it++ == *thisIt++) isEqual = false;
-		while (it != li.begin() || isEqual != false)
-			if (*it++ == *thisIt++) isEqual = false;
-		return isEqual;
-	}
-	/*
-	* Произовдит вставку в связанный список после элемента,
-	* на который указывает итератор pos
-	* Возвращает итератор, указывающий на вставленный элемент
-	*/
-	iterator insert(iterator pos, const T& elem)
-	{
-		//Проверка недействительность переданного итератора
-		//Если итератор недействителен и список пуст, то итератор указывает 
-		//на начало списка и необходимо создание первого элемента
-		//Иначе передан недействительный итератор (функция возвращает 
-		//переданный недействительный итератор)
-		if (!pos) {
-			if (!isEmpty())
-				return pos;
-			m_begin = new Node(new T(elem));
-			++m_size;
-			return iterator(m_begin);
-		}
-
-		//Вставка нового элемена 
-		pos->setNext(new Node(new T(elem), pos->next()));
-		++m_size;
-		return iterator(pos->next());
-	}
-
-	/*
-	* Производит удаление элемента следующего за тем, на который указывает итератор pos из списка
-	* Возвращает итератор на элемент перед удаляемым
-	* Передаваемый в функцию итератор становится недействительным
-	*/
-	iterator erase_after(iterator pos)
-	{
-		if (pos->next() == m_begin) {
-			m_begin = m_begin->next();
-		}
-		Node* iter = pos._getPtr();
-		Node* newNext = iter->next()->next();
-		delete iter->next();
-		iter->setNext(newNext);
-		--m_size;
-		return iterator(iter);
-	}
-
-	/*
-	* Производит удаление элемента, на который указывает итератор pos из списка
-	* Возвращает итератор на элемент после удаляемого
-	* Передаваемый в функцию итератор становится недействительным
-	*/
-	iterator erase(iterator pos)
-	{
-		//проверяем, является ли элемент первым
-		//если это так передвигаем указатель на начало на один элемент вперед
-		if (pos == begin())
-			m_begin = m_begin->next();
-
-		Node* iter = pos._getPtr();
-		//поиск элемент предшествующий данному
-		while (pos != iter->next())
-			iter = iter->next();
-
-		//Сохранение элемента следующего за данным
-		Node* newNext = iter->next()->next();
-		//Удаляем переданный в функцию элемент
-		delete iter->next();
-		//Связываем разорванный список
-		iter->setNext(newNext);
-		--m_size;
-		return iterator(newNext);
-	}
-
-	//очищает связанный список
-	void clear()
-	{
-		Node* iter = m_begin;
-		while (!isEmpty()) {
-			if (iter->next() == m_begin) {
-				m_begin = m_begin->next();
-			}
-
-			Node* newNext = iter->next()->next();
-			delete iter->next();
-			iter->setNext(newNext);
-			--m_size;
-		}
-	}
-
-	/*
-	* Производит поиск элемента elem в связанном списке
-	* Возвращает итератор на (нужно чтобы на предидущий) найденный элемент, если элемент elem есть в списке
-	* Иначе возвращает итератор на начало списка
-	*/
-	iterator find(const T& elem)
-	{
-		//если списко пуст поиск не имеет смысла
-		if (isEmpty())
-			return begin();
-		//Если искомый элемент равен первому возвратить его
-		if (elem == *m_begin->data())
-			return begin();
-		//Итераторы для обхода списка
-		iterator beg = begin();
-		iterator it = beg;
-		//В цикле с передаваемым значением сравниваются все элементы кроме первого
-		//Если элемент не найден, возвращается итератор на начало списка
-		while (++it != beg) {
-			if(*it == elem)
-				return it;
-		}
-		return beg;
-	}
+        Node *delNode = delIter.__getNode();
+        Node *prev = delNode->previous();
+        Node *next = delNode->next();
+        prev->setNext(next);
+        next->setPrevious(prev);
+        delete delNode;
+        --m_size;
+        return iterator(next);
+    }
+    void clear()
+    {
+        while(!isEmpty())
+            erase(begin());
+    }
 
 private:
-	Node* m_begin;
-	int m_size;
+    Node *m_begin;
+    Node *m_end;
+    int m_size;
 };
+#endif //LINK_LIST
