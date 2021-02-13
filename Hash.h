@@ -40,14 +40,12 @@ class Hash
         char* m_key;
     };
 
-    using uint = unsigned int;
-
 public:
     Hash()
         : m_size(0)
-        , m_capacity(3000)
-        , m_multiCoef(m_capacity / 102)
-        , m_elements(new Data[m_capacity]{Val()}) {}
+        , m_capacity(initCapacity)
+        , m_multiCoef(static_cast<uint>(m_capacity / (maxHashFunc - minHashFunc)))
+        , m_elements(new Data[m_capacity]) {}
     ~Hash() { delete[] m_elements; }
 
     void insert(const char* key, const Val& value);
