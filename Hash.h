@@ -1,14 +1,29 @@
 #ifndef HASH_H
 #define HASH_H
 
+#include <QObject>
+
 #include <cstring>
 
-template<int KeyLen, typename Val>
-class Hash
-{    
-    static const char deletedSegment[KeyLen] = "*****\0";
-    static const char emptySegment[KeyLen] = "     \0";
+#ifdef QT_DEBUG
+#include <QFile>
+#include <QDebug>
+#endif
 
+
+class LinkList;
+
+template<uint KeyLen, typename Val>
+class Hash
+{
+    using uint = unsigned int;
+
+    static const char deletedSegment[KeyLen];
+    static const char emptySegment[KeyLen];
+    static const uint minHashFunc;
+    static const uint maxHashFunc;
+    static const uint linearStep;
+    static const uint initCapacity;
     struct Data {
         Data() : m_val(0), m_key(new char[KeyLen]) { std::strncpy(m_key, KeyLen, emptySegment); }
         ~Data() { delete[] m_key; delete m_val; }
@@ -51,7 +66,20 @@ private:
     Data* m_elements;
 };
 
-template<int KeyLen, typename Val>
+template<uint KeyLen, typename Val>
+const char Hash<KeyLen, Val>::deletedSegment[KeyLen] = "*****\0";
+template<uint KeyLen, typename Val>
+const char Hash<KeyLen, Val>::emptySegment[KeyLen] = "     \0";
+template<uint KeyLen, typename Val>
+const uint Hash<KeyLen, Val>::minHashFunc = 240;
+template<uint KeyLen, typename Val>
+const uint Hash<KeyLen, Val>::maxHashFunc = 357;
+template<uint KeyLen, typename Val>
+const uint Hash<KeyLen, Val>::linearStep = 2;
+template<uint KeyLen, typename Val>
+const uint Hash<KeyLen, Val>::initCapacity = 500;
+
+template<uint KeyLen, typename Val>
 void Hash<KeyLen, Val>::insert(const char *key, const Val &value)
 {
     if(m_size > m_capacity * 0.4)
