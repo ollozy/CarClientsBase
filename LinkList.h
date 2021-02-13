@@ -10,95 +10,117 @@ template<typename T>
 class node
 {
 public:
-	using Value = typename T;
+    using Value = T;
 
-	node() : m_data(), m_next(this) {}
-	node(Value* data) : m_data(data) { m_next = this; }
-	node(Value* data, node* next) : m_data(data), m_next(next) {}
+    node() : m_data(nullptr), m_next(this) {}
+    node(Value *data, node *next, node *prev)
+        : m_data(data)
+        , m_next(next)
+        , m_previous(prev) {}
 
-	~node() { delete m_data; }
+    ~node() { delete m_data; }
 
     node *previous() const { return m_previous; }
+    void setPrevious(node *prev) { m_previous = prev; }
 
     node *next() const { return m_next; }
-	node* next() const { return m_next; }
-	Value* data() const { return m_data; }
+    void setNext(node *next) { m_next = next; }
 
     Value *data() { return m_data; }
-	void setData(Value* data) { m_data = data; }
-	void setNext(node* next) { m_next = next; }
+    void setData(Value *data) { m_data = data; }
 
 private:
-	node* m_next;
-	Value* m_data;
+    node *m_next;
+    node *m_previous;
+    Value *m_data;
 };
 
 template<typename Node>
 class ListIterator
 {
-	using ValueType = typename Node::Value;
+    using Value = typename Node::Value;
 public:
 
-	ListIterator(Node* data = nullptr) : m_ptr(data) {}
+    explicit ListIterator(Node* node = nullptr) : m_ptr(node) {}
+    ListIterator(const ListIterator &other) { m_ptr = other.m_ptr; }
 
     ListIterator &operator=(const ListIterator &other)
-	//operator Node() { return m_ptr; }
-	ValueType& operator*() { return *m_ptr->data(); }
-	Node* operator->() { return m_ptr; }
-	bool operator==(const ListIterator& rightIter) { return m_ptr == rightIter.m_ptr; }
-	bool operator!=(const ListIterator& rightIter) { return m_ptr != rightIter.m_ptr; }
-	bool operator==(Node* rightPtr) { return m_ptr == rightPtr; }
-	bool operator!=(Node* rightPtr) { return m_ptr != rightPtr; }
-	bool operator!() { return !m_ptr; }
-	operator ValueType* () { return m_ptr->data(); }
-	ListIterator operator++(int) 
-	{
-		if (m_ptr == nullptr) return *this;
+    {
+        if(this == &other)
+            return *this;
 
-		ListIterator temp = *this;
-		++(*this);
-		return temp;
-	}
-	ListIterator operator++() 
-	{
-		if (m_ptr == nullptr) return *this;
-		m_ptr = m_ptr->next();
-		return *this; 
-	}
+        m_ptr = other.m_ptr;
+        return *this;
+    }
+    Value& operator*() { return *m_ptr->data(); }
+    const Value &operator*() const { return *m_ptr->data(); }
+    Node *operator->() { return m_ptr; }
+    bool operator==(const ListIterator &rightIter) const { return m_ptr == rightIter.m_ptr; }
+    bool operator!=(const ListIterator &rightIter) const { return m_ptr != rightIter.m_ptr; }
+    bool operator!() const { return m_ptr == nullptr; }
+    operator Value () { return *m_ptr->data(); }
+    ListIterator operator++(int)
+    {
+        if (m_ptr == nullptr) return *this;
 
         ListIterator temp = *this;
-	Node* _getPtr() const { return m_ptr; }
+        ++(*this);
+        return temp;
+    }
+    ListIterator operator++()
+    {
+        if (m_ptr == nullptr) return *this;
+        m_ptr = m_ptr->next();
+        return *this;
+    }
+    ListIterator operator--(int)
+    {
+        if (m_ptr == nullptr) return *this;
+
+        ListIterator temp = *this;
+        ++(*this);
+        return temp;
+    }
+    ListIterator operator--()
+    {
+        if (m_ptr == nullptr) return *this;
+        m_ptr = m_ptr->next();
+        return *this;
+    }
+
+    Node *__getNode() const { return m_ptr; }
 
 private:
-	Node* m_ptr;
+    Node *m_ptr;
 };
 
 template<typename T> 
 class LinkList
 {
-	using Node = node<T>;
-	friend class Node;
+    typedef node<T> Node;
+
 public:
-	using iterator = ListIterator<Node>;
+    typedef ListIterator<Node> iterator;
 
-	LinkList() : m_begin(nullptr), m_size(0) {}
-	LinkList(const LinkList<T>& li)
-	{
-		LinkList<T>::iterator it = li.begin();
-		LinkList<T>::iterator thisIt;
-		thisIt = insert(begin(), *it++);
-		while (it != li.begin()) 
-			thisIt = insert(thisIt, *it++);
-	}
-	~LinkList()
-	{
-		clear();
+    LinkList() : m_end(m_begin), m_begin(new Node(new T(), m_end, m_begin)), m_size(0) {}
+    LinkList(const LinkList<T>& li)
+    {
+        LinkList<T>::iterator it = li.begin();
+        LinkList<T>::iterator thisIt;
+        thisIt = insert(begin(), *it++);
+        while (it != li.begin())
+            thisIt = insert(thisIt, *it++);
+    }
+    ~LinkList()
+    {
+        clear();
 		_CrtDumpMemoryLeaks();
-	}
+    }
 
-	int size() const { return m_size; }
-	bool isEmpty() const { return !m_size; }
-	iterator begin() const { return iterator(m_begin); }
+    int size() const { return m_size; }
+    bool isEmpty() const { return m_begin == m_end; }
+    iterator begin() const { return iterator(m_begin); }
+    iterator end() const { return iterator(m_end);}
 
 	LinkList<T>& operator=(const LinkList<T>& li)
 	{
@@ -223,7 +245,8 @@ public:
 	}
 
 private:
-	Node* m_begin;
-	int m_size;
+    Node *m_begin;
+    Node *m_end;
+    int m_size;
 };
 #endif //LINK_LIST
