@@ -18,7 +18,7 @@ public:
         , m_next(next)
         , m_previous(prev) {}
 
-    ~node() { delete m_data; }
+    ~node() { if(m_data) delete m_data; m_data = nullptr; }
 
     node *previous() const { return m_previous; }
     void setPrevious(node *prev) { m_previous = prev; }
@@ -88,6 +88,8 @@ public:
         return *this;
     }
 
+    bool isValid() const { return m_ptr->data() != nullptr; }
+
     Node *__getNode() const { return m_ptr; }
 
 private:
@@ -114,6 +116,7 @@ public:
     ~LinkList()
     {
         clear();
+        delete m_begin;
     }
 
     int size() const { return m_size; }
@@ -204,8 +207,8 @@ public:
     }
     iterator erase(iterator delIter)
     {
-        Q_ASSERT_X(delIter.__getNode(), "LinkList::erase", "The specified iterator argument 'delIter' is invalid");
-        if(!delIter.__getNode())
+        Q_ASSERT_X(delIter.isValid(), "LinkList::erase", "The specified iterator argument 'delIter' is invalid");
+        if(!delIter.isValid())
             return iterator();
         else if(delIter.__getNode() == m_begin) {
             Node *newBegin = m_begin->next();
