@@ -102,7 +102,7 @@ class LinkList
 public:
     typedef ListIterator<Node> iterator;
 
-    LinkList() : m_end(m_begin), m_begin(new Node(new T(), m_end, m_begin)), m_size(0) {}
+    LinkList() : m_end(m_begin), m_begin(new Node(new T(), nullptr, nullptr)), m_size(0) {}
     LinkList(const LinkList<T>& li)
     {
         LinkList<T>::iterator it = li.begin();
@@ -169,8 +169,10 @@ public:
     }
     void prepend(const T &val)
     {
-        if(isEmpty())
+        if(isEmpty()) {
             append(val);
+            return;
+        }
         else {
             Node *newBegin = new Node(new T(val), m_begin, nullptr);
             m_begin->setPrevious(newBegin);
