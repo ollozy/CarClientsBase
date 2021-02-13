@@ -23,7 +23,7 @@ public:
         : m_size(0)
         , m_capacity(3000)
         , m_multiCoef(m_capacity / 102)
-        , m_elements(new Data[m_capacity]) {}
+        , m_elements(new Data[m_capacity]{Val()}) {}
     ~Hash() { delete[] m_elements; }
 
     void insert(const char* key, const Val& value);
@@ -58,13 +58,13 @@ void Hash<KeyLen, Val>::insert(const char *key, const Val &value)
         resize();
     uint seg = hashFunction(key);
     for(uint i = seg; seg < m_capacity; ++i) {
-        if(!std::strcmp(m_elements[seg].m_key, key)) {
-            m_elements[seg].m_val = value;
+        if(std::strcmp(m_elements[seg].m_key, key) == 0) {
+            *m_elements[seg].m_val = value;
             return;
         }
-        else if(!std::strcmp(m_elements[seg].m_key, deletedSegment) ||
-                !std::strcmp(m_elements[seg].m_key, emptySegment)) {
-            m_elements[seg].m_val = value;
+        else if(std::strcmp(m_elements[seg].m_key, deletedSegment) == 0 ||
+                std::strcmp(m_elements[seg].m_key, emptySegment) == 0) {
+            m_elements[seg].m_val = new Val(value);
             std::strncpy(m_elements[seg].m_key, KeyLen, key);
             ++m_size;
             return;
@@ -80,9 +80,10 @@ template<int KeyLen, typename Val>
 void Hash<KeyLen, Val>::erase(const char *key)
 {
     uint seg = hashFunction(key);
-    for(int i = 0; seg < m_capacity; ++i) {
-        if(!std::strcmp(key, m_elements[seg].m_key)) {
+    for(uint i = 0; seg < m_capacity; ++i) {
+        if(std::strcmp(key, m_elements[seg].m_key) == 0) {
             std::strncpy(m_elements[seg].m_key, KeyLen, deletedSegment);
+            delete m_elements[seg].m_val;
             --m_size;
             return;
         }
