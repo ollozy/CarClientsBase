@@ -37,6 +37,9 @@ class Hash
         ~Data() { delete[] m_key; }
         Val m_val;
         char* m_key;
+#ifdef QT_DEBUG
+        uchar m_cellCall = 0;
+#endif
     };
 
 public:
@@ -61,6 +64,19 @@ public:
 
     int size() const;
     int capacity() const;
+
+#ifdef QT_DEBUG
+    bool getTestFile(const char *fileName) {
+        QFile testFile(fileName);
+        if(!testFile.open(QIODevice::WriteOnly))
+            qDebug() << "cannot open file" << fileName << "for write";
+        QTextStream stream(&testFile);
+        for (uint i = 0; i < m_capacity; ++i)
+            stream << QString::number(m_elements[i].m_cellCall) << '\n';
+        testFile.close();
+        return true;
+    }
+#endif
 
 private:
     void resize(uint newSize);
