@@ -114,7 +114,6 @@ public:
     ~LinkList()
     {
         clear();
-		_CrtDumpMemoryLeaks();
     }
 
     int size() const { return m_size; }
@@ -122,58 +121,52 @@ public:
     iterator begin() const { return iterator(m_begin); }
     iterator end() const { return iterator(m_end);}
 
-	LinkList<T>& operator=(const LinkList<T>& li)
-	{
-		if (this == &li)
-			return *this;
+    LinkList<T>& operator=(const LinkList<T>& li)
+    {
+        if (this == &li)
+            return *this;
 
-		LinkList<T>::iterator it = li.begin();
-		LinkList<T>::iterator thisIt;
+        for(LinkList<T>::iterator it = li.begin(); it != li.end(); ++it)
+            append(*it);
 
-		thisIt = insert(begin(), *it++);
-		while(it != li.begin())
-			thisIt = insert(thisIt, *it++);
-
-		return *this;
-	}
-	bool operator==(const LinkList<T>& li)
-	{
+        return *this;
+    }
+    T& operator[](int i)
+    {
 		bool isEqual = true;
 		if (li.size() != size())
 			return false;
 
-		LinkList<T>::iterator it = li.begin();
-		LinkList<T>::iterator thisIt = begin();
-
-		if (*it++ == *thisIt++) isEqual = false;
-		while (it != li.begin() || isEqual != false)
-			if (*it++ == *thisIt++) isEqual = false;
-		return isEqual;
-	}
-        else {
-            *m_end->data() = val;
-            Node *newEnd = new Node(new T(), nullptr, m_end);
-            m_end->setNext(newEnd);
-            m_end = newEnd;
-	iterator insert(iterator pos, const T& elem)
-	{
+    void append(const T &val)
+    {
         if(isEmpty()) {
             *m_begin->data() = val;
             m_end = new Node(new T(), nullptr, m_begin);
             m_begin->setNext(m_end);
         }
-		if (!pos) {
-			if (!isEmpty())
-				return pos;
-			m_begin = new Node(new T(elem));
-			++m_size;
-			return iterator(m_begin);
-		}
-
-		pos->setNext(new Node(new T(elem), pos->next()));
-		++m_size;
-		return iterator(pos->next());
-	}
+        else {
+            *m_end->data() = val;
+            Node *newEnd = new Node(new T(), nullptr, m_end);
+            m_end->setNext(newEnd);
+            m_end = newEnd;
+        }
+        ++m_size;
+    }
+    void prepend(const T &val)
+    {
+        if(isEmpty()) {
+            *m_begin->data() = val;
+            m_end = new Node(new T(), nullptr, m_begin);
+            m_begin->setNext(m_end);
+        }
+        else {
+            *m_begin->data() = val;
+            Node *newBegin = new Node(new T(), m_begin, nullptr);
+            m_begin->setPrevious(newBegin);
+            m_begin = newBegin;
+        }
+        ++m_size;
+    }
 
     iterator insert(const T& val, iterator iter)
 	iterator erase_after(iterator pos)
