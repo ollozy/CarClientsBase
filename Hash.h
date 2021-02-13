@@ -5,13 +5,12 @@
 
 #include <cstring>
 
+#include "LinkList.h"
+
 #ifdef QT_DEBUG
 #include <QFile>
 #include <QDebug>
 #endif
-
-
-class LinkList;
 
 template<uint KeyLen, typename Val>
 class Hash
@@ -31,7 +30,7 @@ class Hash
     };
 
     struct Data {
-        explicit Data(Val val = Val()) noexcept
+        explicit Data(Val val = Val())
             : m_val(val),
               m_key(new char[KeyLen])
         { std::strncpy(m_key, emptySegment, KeyLen); }
@@ -45,7 +44,7 @@ public:
         : m_size(0)
         , m_capacity(initCapacity)
         , m_multiCoef(static_cast<uint>(m_capacity / (maxHashFunc - minHashFunc)))
-        , m_elements(new Data[m_capacity]) {}
+        , m_elements(new Data[m_capacity]{Data()}) {}
     ~Hash() { delete[] m_elements; }
 
     void insert(const char* key, const Val& value);
@@ -56,7 +55,7 @@ public:
     const Val &operator[](const char *key) const;
 
 
-    void keys() const;
+    LinkList<char *> keys() const;
     const char *key(const Val &val) const;
     bool hasKey(const char *key) const;
 
@@ -141,7 +140,7 @@ void Hash<KeyLen, Val>::clear()
     }
     m_capacity = initCapacity;
     delete[] m_elements;
-    m_elements = new Data[m_capacity];
+    m_elements = new Data[m_capacity]{Data()};
     m_multiCoef = static_cast<uint>(m_capacity / (maxHashFunc - minHashFunc));
 }
 
@@ -166,7 +165,22 @@ const Val &Hash<KeyLen, Val>::operator[](const char *key) const
 {
     return operator[](key);
 }
+
+template<uint KeyLen, typename Val>
+LinkList<char *> Hash<KeyLen, Val>::keys() const
+{
+    LinkList<char *> keyList;
+    for(uint i = 0; i < m_capacity; ++i) {
+        if(std::strncmp(m_elements[i].m_key, emptySegment, KeyLen) != 0
+                && std::strncmp(m_elements[i].m_key, deletedSegment, KeyLen) != 0) {
+            LinkList<char *>::iterator iter = keyList.insert(new char[KeyLen], keyList.begin());
+            std::strncpy(*iter, m_elements[i].m_key, KeyLen);
+        }
+    }
+    return keyList;
 }
+
+template<uint KeyLen, typename Val>
 const char *Hash<KeyLen, Val>::key(const Val &val) const
 {
     for(int i = 0; i < m_capacity; ++i) {
@@ -180,13 +194,13 @@ template<uint KeyLen, typename Val>
 bool Hash<KeyLen, Val>::hasKey(const char *key) const
 {
     uint seg = hashFunction(key);
-     for(uint i = 0; seg < m_capacity; ++i) {
-         if(std::strncmp(key, m_elements[seg].m_key, KeyLen) == 0)
-             return true;
-         else
-             linearTesting(i, seg);
-     }
-     return false;
+    for(uint i = 0; seg < m_capacity; ++i) {
+        if(std::strncmp(key, m_elements[seg].m_key, KeyLen) == 0)
+            return true;
+        else
+            linearTesting(i, seg);
+    }
+    return false;
 }
 
 template<uint KeyLen, typename Val>
@@ -210,7 +224,7 @@ void Hash<KeyLen, Val>::resize(uint newSize)
         temp[i].m_val = m_elements[i].m_val;
     }
     delete[] m_elements;
-    m_elements = new Data[newSize];
+    m_elements = new Data[newSize]{Data()};
     m_capacity = newSize;
     m_size = 0;
     for(uint i = 0; i < newSize; ++i) {
