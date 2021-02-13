@@ -91,4 +91,21 @@ void Hash<KeyLen, Val>::erase(const char *key)
             linearTesting(i, seg);
     }
 }
+
+template<int KeyLen, typename Val>
+void Hash<KeyLen, Val>::clear()
+{
+    for(uint seg = 0; seg < m_capacity; ++seg) {
+        if(std::strcmp(m_elements[seg].m_key, deletedSegment) != 0
+                && std::strcmp(m_elements[seg].m_key, emptySegment) != 0) {
+            std::strcmp(m_elements[seg].m_key, deletedSegment);
+            delete m_elements[seg].m_val;
+            --m_size;
+        }
+    }
+    m_capacity = 3000;
+    delete[] m_elements;
+    m_elements = new Data[m_capacity]{Val()};
+    m_multiCoef = m_capacity / 102;
+}
 #endif // HASH_H
