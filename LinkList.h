@@ -180,7 +180,6 @@ public:
     }
 
     iterator insert(const T& val, iterator iter)
-	iterator erase_after(iterator pos)
     {
         Q_ASSERT_X(iter.__getNode(), "LinkList::insert", "The specified iterator argument 'before' is invalid");
         if(!iter.__getNode())
@@ -192,9 +191,6 @@ public:
         else if(iter.__getNode() == m_end) {
             append(val);
             return iterator(m_end->previous());
-		iter->setNext(newNext);
-		--m_size;
-		return iterator(iter);
         }
 
 	iterator erase(iterator pos)
