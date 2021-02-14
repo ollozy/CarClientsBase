@@ -3,8 +3,8 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/SearchTree.h \
-    $$PWD/LinkList.h
-        $$PWD/Hash.h
+    $$PWD/LinkList.h \
+    $$PWD/Hash.h
 
 RESOURCES += \
     $$PWD/qml.qrc
