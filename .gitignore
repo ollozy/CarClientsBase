@@ -23,6 +23,6 @@ build-5.14.2/app/qrc_qml.o
 
 LinkList.h.autosave
 
-*.txt
-
 *.o
+
+build-5.14.2/testFile.txt
