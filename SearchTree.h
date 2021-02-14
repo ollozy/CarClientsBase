@@ -128,23 +128,58 @@ class Tree {
     };
 
 public:
-    Tree() : m_rootNode(nullptr) {}
-    ~Tree() {};
+    Tree() : m_rootNode(nullptr), m_size(0) {}
+    ~Tree() { clear(); };
 
     const Val &operator[](const char *key) const;
     Val &operator[](const char *key);
 
-    const Val &get(const char *key) const;
+    Val get(const char *key) const;
     void insert(const char *key, const Val &val);
     void erase(const char *key);
     void clear();
 
+    uint size() const { return m_size; }
+
 private:
     Node *m_rootNode;
+    uint m_size;
 };
 
 template<typename Val, uint KeyLen>
-const Val &Tree<Val, KeyLen>::get(const char *key) const
+Val &Tree<Val, KeyLen>::operator[](const char *key)
+{
+    Node *searchNode = m_rootNode;
+    while(searchNode && std::strncmp(key, searchNode->m_key, KeyLen) != 0) {
+        if(std::strncmp(key, searchNode->m_key, KeyLen) > 0) {
+            if(!searchNode->m_rightChild)
+                searchNode = nullptr;
+            else
+                searchNode = searchNode->m_rightChild;
+        }
+        else {
+            if(!searchNode->m_leftChild)
+                searchNode = nullptr;
+            else
+                searchNode = searchNode->m_leftChild;
+        }
+    }
+    if(searchNode)
+        return searchNode->m_data;
+    else {
+        Q_ASSERT_X(searchNode, "Tree::get", "Attemp access to nonexistent node");
+        return m_rootNode->m_data;
+    }
+}
+
+template<typename Val, uint KeyLen>
+const Val &Tree<Val, KeyLen>::operator[](const char *key) const
+{
+    return operator[](key);
+}
+
+template<typename Val, uint KeyLen>
+Val Tree<Val, KeyLen>::get(const char *key) const
 {
     Node *searchNode = m_rootNode;
     while(searchNode && std::strncmp(key, searchNode->m_key, KeyLen) != 0) {
@@ -172,6 +207,7 @@ const Val &Tree<Val, KeyLen>::get(const char *key) const
 template<typename Val, uint KeyLen>
 void Tree<Val, KeyLen>::insert(const char *key, const Val &val)
 {
+    ++m_size;
     if(!m_rootNode) {
         m_rootNode = new Node(val, key);
         return;
@@ -182,6 +218,7 @@ void Tree<Val, KeyLen>::insert(const char *key, const Val &val)
 template<typename Val, uint KeyLen>
 void Tree<Val, KeyLen>::erase(const char *key)
 {
+    --m_size;
     if(!m_rootNode)
         return;
     m_rootNode = m_rootNode->eraceNode(key);
@@ -190,7 +227,9 @@ void Tree<Val, KeyLen>::erase(const char *key)
 template<typename Val, uint KeyLen>
 void Tree<Val, KeyLen>::clear()
 {
-
+    while (m_rootNode != nullptr) {
+        erase(m_rootNode->m_key);
+    }
 }
 
 #endif // SEARCHTREE_H
