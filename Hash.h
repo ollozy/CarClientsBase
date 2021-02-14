@@ -48,7 +48,7 @@ public:
         , m_capacity(initCapacity)
         , m_multiCoef(static_cast<uint>(m_capacity / (maxHashFunc - minHashFunc)))
         , m_elements(new Data[m_capacity]) {}
-    ~Hash() { clear(); delete[] m_elements; }
+    ~Hash() { delete[] m_elements; }
 
     void insert(const char* key, const Val& value);
     void erase(const char* key);
