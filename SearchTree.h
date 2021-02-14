@@ -3,70 +3,59 @@
 
 #include <typeinfo>
 #include <cstring>
+#include <iostream>
 
-template<typename Val, typename Key>
+template<typename Val, uint KeyLen>
 class Tree {
 
-    typedef unsigned int uint ;
+    typedef unsigned int uint;
+
     struct Node {
-        Node(Val data = Val(), Key key = Key(), Node *right = nullptr, Node *left = nullptr)
+        Node(Val data = Val(), const char *key = nullptr, Node *right = nullptr, Node *left = nullptr)
             : m_data(data)
+            , m_key(new char[KeyLen])
             , m_rightChild(right)
-            , m_key(key)
-            , m_leftChild(left) {}
+            , m_leftChild(left) { if(key) std::strncpy(m_key, key, KeyLen); }
+        ~Node() { delete[] m_key; }
         Val m_data;
-        Key m_key;
+        char *m_key;
         Node *m_rightChild;
         Node *m_leftChild;
     };
 
 public:
-    Tree() : m_rootNode(nullptr)
-    {
-        if(typeid (Key) == typeid (const char *)
-                || typeid (Key) == typeid (char *))
-            cmpFunc = std::strcmp;
-        else cmpFunc = [&](Key left, Key right)->uint{
-            if(left > right)
-                return 1;
-            else if(right > left)
-                return -1;
-            else
-                return 0;
-        };
-    }
-    ~Tree();
+    Tree() : m_rootNode(nullptr) {}
+    ~Tree() {};
 
-    const Val find(const Key key) const;
-    void insert(const Val &val, const Key &key);
-    void erace(const Key key);
+    const Val find(const char *key) const;
+    void insert(const char *key, const Val &val);
+    void erace(const char *key);
     void clear();
 
 
 private:
     Node *m_rootNode;
-    uint (*cmpFunc)(Key, Key);
 };
 
-template<typename Val, typename Key>
-void Tree<Val, Key>::insert(const Val &val, const Key &key)
+template<typename Val, uint KeyLen>
+void Tree<Val, KeyLen>::insert(const char *key, const Val &val)
 {
     Node *newNode = new Node(val, key);
-    if(!m_rootNode->m_data) {
-        m_rootNode->m_data = newNode;
+    if(!m_rootNode) {
+        m_rootNode = newNode;
         return;
     }
     Node *searchNode = m_rootNode;
-    while((cmpFunc(key, searchNode->m_key) > 0 && !searchNode->m_rightChild)
-          || (cmpFunc(key, searchNode->m_key) < 0 && !searchNode->m_leftChild)) {
-        if(cmpFunc(key, searchNode->m_key) > 0)
+    while((std::strncmp(key, searchNode->m_key, KeyLen) > 0 && searchNode->m_rightChild)
+          || (std::strncmp(key, searchNode->m_key, KeyLen) < 0 && searchNode->m_leftChild)) {
+        if(std::strncmp(key, searchNode->m_key, KeyLen) > 0)
             searchNode = searchNode->m_rightChild;
-        else if(cmpFunc(key, searchNode->m_key) < 0)
+        else if(std::strncmp(key, searchNode->m_key, KeyLen) < 0)
             searchNode = searchNode->m_leftChild;
     }
-    if(cmpFunc(key, searchNode->m_key) > 0)
+    if(std::strncmp(key, searchNode->m_key, KeyLen) > 0)
         searchNode->m_rightChild = newNode;
-    else if(cmpFunc(key, searchNode->m_key) < 0)
+    else if(std::strncmp(key, searchNode->m_key, KeyLen) < 0)
         searchNode->m_leftChild = newNode;
 }
 
