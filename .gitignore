@@ -2,3 +2,11 @@
 *.user
 
 CarRentalClientBase
+
+*.o
+
+CarRentalClientsBase
+
+build-5.14.2/app/app
+
+build-5.14.2/testFile.txt
