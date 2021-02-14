@@ -1,7 +1,9 @@
 SOURCES += \
-        main.cpp
-
-RESOURCES += qml.qrc
+    $$PWD/main.cpp
 
 HEADERS += \
-    $$PWD/SearchTree.h
+    $$PWD/SearchTree.h \
+    $$PWD/LinkList.h
+
+RESOURCES += \
+    $$PWD/qml.qrc
