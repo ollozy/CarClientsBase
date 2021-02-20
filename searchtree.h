@@ -124,13 +124,13 @@ class Tree {
             }
             return balance();
         }
-        void valCrawling(LinkList<Node *> &storage)
+        void valCrawling(LinkList<Val> &storage)
         {
             if(m_leftChild)
                 m_leftChild->valCrawling(storage);
             if(m_rightChild)
                 m_rightChild->valCrawling(storage);
-            storage.append(this);
+            storage.append(m_data);
         }
 
         Val m_data;
