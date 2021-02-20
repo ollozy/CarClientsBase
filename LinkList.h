@@ -3,6 +3,10 @@
 
 #include <QObject>
 
+#include "global.h"
+
+using appGlobal::uint;
+
 template<typename T> class LinkList;
 template<typename Node> class ListIterator;
 
@@ -116,7 +120,7 @@ public:
         delete m_begin;
     }
 
-    int size() const { return m_size; }
+    uint size() const { return m_size; }
     bool isEmpty() const { return m_begin == m_end; }
     iterator begin() const { return iterator(m_begin); }
     iterator end() const { return iterator(m_end);}
@@ -137,7 +141,7 @@ public:
         if(!(i < m_size))
             return *m_end->data();
         Node *pNode = m_begin;
-        for(int j = 0; i != j; ++j)
+        for(uint j = 0; i != j; ++j)
             pNode = pNode->next();
         return *pNode->data();
     }
@@ -147,7 +151,7 @@ public:
         if(!(i < m_size))
             return *m_end->data();
         Node *pNode = m_begin;
-        for(int j = 0; i != j; ++j)
+        for(uint j = 0; i != j; ++j)
             pNode = pNode->next();
         return *pNode->data();
     }
@@ -236,6 +240,6 @@ public:
 private:
     Node *m_begin;
     Node *m_end;
-    int m_size;
+    uint m_size;
 };
 #endif //LINK_LIST

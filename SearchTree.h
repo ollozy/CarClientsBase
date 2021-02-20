@@ -4,10 +4,12 @@
 #include <typeinfo>
 #include <cstring>
 
+#include "global.h"
+
+using appGlobal::uint;
+
 template<typename Val, uint KeyLen>
 class Tree {
-
-    typedef unsigned int uint;
 
     struct Node {
         Node(const Val &data = Val(), const char *key = nullptr, Node *right = nullptr, Node *left = nullptr)

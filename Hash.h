@@ -1,10 +1,11 @@
 #ifndef HASH_H
 #define HASH_H
 
-#include <QObject>
+//#include <QObject>
 
 #include <cstring>
 
+#include "global.h"
 #include "LinkList.h"
 
 #ifdef QT_DEBUG
@@ -12,11 +13,12 @@
 #include <QDebug>
 #endif
 
+using appGlobal::uint;
+
+
 template<uint KeyLen, typename Val>
 class Hash
 {
-    using uint = unsigned int;
-
     static const char deletedSegment[KeyLen];
     static const char emptySegment[KeyLen];
     static const uint minHashFunc;
@@ -63,8 +65,8 @@ public:
     const char *key(const Val &val) const;
     bool hasKey(const char *key) const;
 
-    int size() const;
-    int capacity() const;
+    uint size() const;
+    uint capacity() const;
 
 #ifdef QT_DEBUG
     bool getTestFile(const char *fileName) {
@@ -82,7 +84,7 @@ public:
 private:
     void resize(uint newSize);
     uint hashFunction(const char* key) const;
-    void linearTesting(int tryNum, unsigned int& seg) const;
+    void linearTesting(uint tryNum, uint& seg) const;
 
 private:
     uint m_size;
@@ -212,7 +214,7 @@ LinkList<Val> Hash<KeyLen, Val>::values() const
 template<uint KeyLen, typename Val>
 const char *Hash<KeyLen, Val>::key(const Val &val) const
 {
-    for(int i = 0; i < m_capacity; ++i) {
+    for(uint i = 0; i < m_capacity; ++i) {
         if(val == m_elements[i].m_data)
             return m_elements[i].m_key;
     }
@@ -233,13 +235,13 @@ bool Hash<KeyLen, Val>::hasKey(const char *key) const
 }
 
 template<uint KeyLen, typename Val>
-int Hash<KeyLen, Val>::size() const
+uint Hash<KeyLen, Val>::size() const
 {
     return m_size;
 }
 
 template<uint KeyLen, typename Val>
-int Hash<KeyLen, Val>::capacity() const
+uint Hash<KeyLen, Val>::capacity() const
 {
     return m_capacity;
 }
@@ -266,7 +268,7 @@ void Hash<KeyLen, Val>::resize(uint newSize)
 }
 
 template<uint KeyLen, typename Val>
-unsigned int Hash<KeyLen, Val>::hashFunction(const char *key) const
+uint Hash<KeyLen, Val>::hashFunction(const char *key) const
 {
     uint seg = 0;
     key_helper helper;
@@ -278,7 +280,7 @@ unsigned int Hash<KeyLen, Val>::hashFunction(const char *key) const
 }
 
 template<uint KeyLen, typename Val>
-void Hash<KeyLen, Val>::linearTesting(int tryNum, unsigned int &seg) const
+void Hash<KeyLen, Val>::linearTesting(uint tryNum, uint &seg) const
 {
     seg += linearStep * tryNum + tryNum % 2 + 1;
 }
