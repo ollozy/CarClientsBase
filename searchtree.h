@@ -5,6 +5,7 @@
 #include <cstring>
 
 #include "global.h"
+#include "LinkList.h"
 
 using appGlobal::uint;
 
@@ -137,6 +138,7 @@ public:
     Val &operator[](const char *key);
 
     Val get(const char *key) const;
+
     void insert(const char *key, const Val &val);
     void erase(const char *key);
     void clear();
@@ -183,7 +185,10 @@ const Val &Tree<Val, KeyLen>::operator[](const char *key) const
 template<typename Val, uint KeyLen>
 Val Tree<Val, KeyLen>::get(const char *key) const
 {
-    Node *searchNode = m_rootNode;
+    if(!m_rootNode)
+        return Val();
+
+    Node *searchNode = m_rootNode->m_leftChild;
     while(searchNode && std::strncmp(key, searchNode->m_key, KeyLen) != 0) {
         if(std::strncmp(key, searchNode->m_key, KeyLen) > 0) {
             if(!searchNode->m_rightChild)

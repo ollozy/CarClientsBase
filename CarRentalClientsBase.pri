@@ -2,10 +2,10 @@ SOURCES += \
     $$PWD/main.cpp
 
 HEADERS += \
-    $$PWD/SearchTree.h \
-    $$PWD/LinkList.h \
-    $$PWD/Hash.h \
-    $$PWD/global.h
+    $$PWD/global.h \
+    $$PWD/hash.h \
+    $$PWD/linklist.h \
+    $$PWD/searchtree.h
 
 RESOURCES += \
     $$PWD/qml.qrc
