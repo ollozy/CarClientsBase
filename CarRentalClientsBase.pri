@@ -3,6 +3,7 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/global.h \
+    $$PWD/hash.h \
     $$PWD/linklist.h \
     $$PWD/searchtree.h
 
