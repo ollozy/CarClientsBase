@@ -16,11 +16,11 @@
 using appGlobal::uint;
 
 
-template<uint KeyLen, typename Val>
+template<typename Val, uint KeyLen>
 class Hash
 {
-    static const char deletedSegment[KeyLen];
-    static const char emptySegment[KeyLen];
+    static char deletedSegment[KeyLen];
+    static char emptySegment[KeyLen];
     static const uint minHashFunc;
     static const uint maxHashFunc;
     static const uint linearStep;
@@ -49,7 +49,13 @@ public:
         : m_size(0)
         , m_capacity(initCapacity)
         , m_multiCoef(static_cast<uint>(m_capacity / (maxHashFunc - minHashFunc)))
-        , m_elements(new Data[m_capacity]) {}
+        , m_elements(new Data[m_capacity]) {
+        for(uint i = 0; i < KeyLen - 1; ++i) {
+            emptySegment[i] = ' ';
+            deletedSegment[i] = '*';
+        }
+        emptySegment[KeyLen] = deletedSegment[KeyLen] = '\0';
+    }
     ~Hash() { delete[] m_elements; }
 
     void insert(const char* key, const Val& value);
@@ -94,21 +100,21 @@ private:
     Data* m_elements;
 };
 
-template<uint KeyLen, typename Val>
-const char Hash<KeyLen, Val>::deletedSegment[KeyLen] = "*****\0";
-template<uint KeyLen, typename Val>
-const char Hash<KeyLen, Val>::emptySegment[KeyLen] = "     \0";
-template<uint KeyLen, typename Val>
-const uint Hash<KeyLen, Val>::minHashFunc = 240;
-template<uint KeyLen, typename Val>
-const uint Hash<KeyLen, Val>::maxHashFunc = 357;
-template<uint KeyLen, typename Val>
-const uint Hash<KeyLen, Val>::linearStep = 2;
-template<uint KeyLen, typename Val>
-const uint Hash<KeyLen, Val>::initCapacity = 500;
+template<typename Val, uint KeyLen>
+char Hash<Val, KeyLen>::deletedSegment[KeyLen];
+template<typename Val, uint KeyLen>
+char Hash<Val, KeyLen>::emptySegment[KeyLen];
+template<typename Val, uint KeyLen>
+const uint Hash<Val, KeyLen>::minHashFunc = 240;
+template<typename Val, uint KeyLen>
+const uint Hash<Val, KeyLen>::maxHashFunc = 357;
+template<typename Val, uint KeyLen>
+const uint Hash<Val, KeyLen>::linearStep = 2;
+template<typename Val, uint KeyLen>
+const uint Hash<Val, KeyLen>::initCapacity = 500;
 
-template<uint KeyLen, typename Val>
-void Hash<KeyLen, Val>::insert(const char *key, const Val &value)
+template<typename Val, uint KeyLen>
+void Hash<Val, KeyLen>::insert(const char *key, const Val &value)
 {
     if(m_size > m_capacity * 0.8)
         resize(static_cast<uint>(m_capacity * 1.5));
@@ -132,8 +138,8 @@ void Hash<KeyLen, Val>::insert(const char *key, const Val &value)
     insert(key, value);
 }
 
-template<uint KeyLen, typename Val>
-void Hash<KeyLen, Val>::erase(const char *key)
+template<typename Val, uint KeyLen>
+void Hash<Val, KeyLen>::erase(const char *key)
 {
     uint seg = hashFunction(key);
     for(uint i = 0; seg < m_capacity; ++i) {
@@ -147,8 +153,8 @@ void Hash<KeyLen, Val>::erase(const char *key)
     }
 }
 
-template<uint KeyLen, typename Val>
-void Hash<KeyLen, Val>::clear()
+template<typename Val, uint KeyLen>
+void Hash<Val, KeyLen>::clear()
 {
     for(uint seg = 0; seg < m_capacity; ++seg) {
         if(std::strncmp(m_elements[seg].m_key, deletedSegment, KeyLen) != 0
@@ -163,8 +169,8 @@ void Hash<KeyLen, Val>::clear()
     m_multiCoef = static_cast<uint>(m_capacity / (maxHashFunc - minHashFunc));
 }
 
-template<uint KeyLen, typename Val>
-Val &Hash<KeyLen, Val>::operator[](const char *key)
+template<typename Val, uint KeyLen>
+Val &Hash<Val, KeyLen>::operator[](const char *key)
 {
     uint seg = hashFunction(key);
     for (uint i = 0; seg < m_capacity; ++i) {
@@ -175,18 +181,18 @@ Val &Hash<KeyLen, Val>::operator[](const char *key)
             continue;
         }
     }
-    Q_ASSERT_X(false, "Hash<KeyLen, Val>::operator[]", "access to hash with out of range key");
+    Q_ASSERT_X(false, "Hash<Val, KeyLen>::operator[]", "access to hash with out of range key");
     return m_elements[0].m_data;
 }
 
-template<uint KeyLen, typename Val>
-const Val &Hash<KeyLen, Val>::operator[](const char *key) const
+template<typename Val, uint KeyLen>
+const Val &Hash<Val, KeyLen>::operator[](const char *key) const
 {
     return operator[](key);
 }
 
-template<uint KeyLen, typename Val>
-LinkList<char *> Hash<KeyLen, Val>::keys() const
+template<typename Val, uint KeyLen>
+LinkList<char *> Hash<Val, KeyLen>::keys() const
 {
     LinkList<char *> keyList;
     for(uint i = 0; i < m_capacity; ++i) {
@@ -198,8 +204,8 @@ LinkList<char *> Hash<KeyLen, Val>::keys() const
     return keyList;
 }
 
-template<uint KeyLen, typename Val>
-LinkList<Val> Hash<KeyLen, Val>::values() const
+template<typename Val, uint KeyLen>
+LinkList<Val> Hash<Val, KeyLen>::values() const
 {
     LinkList<Val> keyList;
     for(uint i = 0; i < m_capacity; ++i) {
@@ -211,8 +217,8 @@ LinkList<Val> Hash<KeyLen, Val>::values() const
     return keyList;
 }
 
-template<uint KeyLen, typename Val>
-const char *Hash<KeyLen, Val>::key(const Val &val) const
+template<typename Val, uint KeyLen>
+const char *Hash<Val, KeyLen>::key(const Val &val) const
 {
     for(uint i = 0; i < m_capacity; ++i) {
         if(val == m_elements[i].m_data)
@@ -221,8 +227,8 @@ const char *Hash<KeyLen, Val>::key(const Val &val) const
     return "\0";
 }
 
-template<uint KeyLen, typename Val>
-bool Hash<KeyLen, Val>::hasKey(const char *key) const
+template<typename Val, uint KeyLen>
+bool Hash<Val, KeyLen>::hasKey(const char *key) const
 {
     uint seg = hashFunction(key);
     for(uint i = 0; seg < m_capacity; ++i) {
@@ -234,20 +240,20 @@ bool Hash<KeyLen, Val>::hasKey(const char *key) const
     return false;
 }
 
-template<uint KeyLen, typename Val>
-uint Hash<KeyLen, Val>::size() const
+template<typename Val, uint KeyLen>
+uint Hash<Val, KeyLen>::size() const
 {
     return m_size;
 }
 
-template<uint KeyLen, typename Val>
-uint Hash<KeyLen, Val>::capacity() const
+template<typename Val, uint KeyLen>
+uint Hash<Val, KeyLen>::capacity() const
 {
     return m_capacity;
 }
 
-template<uint KeyLen, typename Val>
-void Hash<KeyLen, Val>::resize(uint newSize)
+template<typename Val, uint KeyLen>
+void Hash<Val, KeyLen>::resize(uint newSize)
 {
     Data *temp = new Data[newSize];
     for(uint i = 0; i < m_capacity; ++i) {
@@ -267,8 +273,8 @@ void Hash<KeyLen, Val>::resize(uint newSize)
     delete[] temp;
 }
 
-template<uint KeyLen, typename Val>
-uint Hash<KeyLen, Val>::hashFunction(const char *key) const
+template<typename Val, uint KeyLen>
+uint Hash<Val, KeyLen>::hashFunction(const char *key) const
 {
     uint seg = 0;
     key_helper helper;
@@ -279,8 +285,8 @@ uint Hash<KeyLen, Val>::hashFunction(const char *key) const
     return ((seg - minHashFunc) * m_multiCoef) % m_capacity;
 }
 
-template<uint KeyLen, typename Val>
-void Hash<KeyLen, Val>::linearTesting(uint tryNum, uint &seg) const
+template<typename Val, uint KeyLen>
+void Hash<Val, KeyLen>::linearTesting(uint tryNum, uint &seg) const
 {
     seg += linearStep * tryNum + tryNum % 2 + 1;
 }
