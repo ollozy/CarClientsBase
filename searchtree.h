@@ -5,7 +5,7 @@
 #include <cstring>
 
 #include "global.h"
-#include "LinkList.h"
+#include "linklist.h"
 
 using appGlobal::uint;
 
@@ -20,6 +20,7 @@ class Tree {
             , m_rightChild(right)
             , m_leftChild(left) { if(key) std::strncpy(m_key, key, KeyLen); }
         ~Node() { delete[] m_key; }
+
         int balanceFactor() const
         {
             uint leftHeight = m_leftChild ? m_leftChild->m_height : 0;
@@ -81,13 +82,13 @@ class Tree {
         Node *insertNode(const char *key, const Val &val)
         {
             if(std::strncmp(key, m_key, KeyLen) < 0) {
-                if(m_leftChild != nullptr)
+                if(m_leftChild)
                     m_leftChild = m_leftChild->insertNode(key, val);
                 else
                     m_leftChild = new Node(val, key);
             }
             else if(std::strncmp(key, m_key, KeyLen) > 0) {
-                if(m_rightChild != nullptr)
+                if(m_rightChild)
                     m_rightChild = m_rightChild->insertNode(key, val);
                 else
                     m_rightChild = new Node(val, key);
@@ -123,6 +124,15 @@ class Tree {
             }
             return balance();
         }
+        void valCrawling(LinkList<Node *> &storage)
+        {
+            if(m_leftChild)
+                m_leftChild->valCrawling(storage);
+            if(m_rightChild)
+                m_rightChild->valCrawling(storage);
+            storage.append(this);
+        }
+
         Val m_data;
         char *m_key;
         uint m_height;
@@ -137,7 +147,8 @@ public:
     const Val &operator[](const char *key) const;
     Val &operator[](const char *key);
 
-    Val get(const char *key) const;
+    Val value(const char *key) const;
+    LinkList<Val> values() const;
 
     void insert(const char *key, const Val &val);
     void erase(const char *key);
@@ -183,32 +194,34 @@ const Val &Tree<Val, KeyLen>::operator[](const char *key) const
 }
 
 template<typename Val, uint KeyLen>
-Val Tree<Val, KeyLen>::get(const char *key) const
+Val Tree<Val, KeyLen>::value(const char *key) const
 {
     if(!m_rootNode)
         return Val();
 
-    Node *searchNode = m_rootNode->m_leftChild;
-    while(searchNode && std::strncmp(key, searchNode->m_key, KeyLen) != 0) {
-        if(std::strncmp(key, searchNode->m_key, KeyLen) > 0) {
-            if(!searchNode->m_rightChild)
-                searchNode = nullptr;
-            else
-                searchNode = searchNode->m_rightChild;
-        }
-        else {
-            if(!searchNode->m_leftChild)
-                searchNode = nullptr;
-            else
-                searchNode = searchNode->m_leftChild;
-        }
+    Node *searchNode = m_rootNode;
+    while(searchNode) {
+        if(std::strncmp(key, searchNode->m_key, KeyLen) > 0)
+            searchNode = searchNode->m_rightChild;
+        else if(std::strncmp(key, searchNode->m_key, KeyLen) < 0)
+            searchNode = searchNode->m_leftChild;
+        else
+            return searchNode->m_data;
     }
-    if(searchNode)
-        return searchNode->m_data;
-    else {
-        Q_ASSERT_X(searchNode, "Tree::get", "Attemp access to nonexistent node");
-        return Val();
-    }
+    Q_ASSERT_X(searchNode, "Tree::get", "Attemp access to nonexistent node");
+    return Val();
+
+}
+
+template<typename Val, uint KeyLen>
+LinkList<Val> Tree<Val, KeyLen>::values() const
+{
+    LinkList<Val> storage;
+    if(!m_rootNode)
+        return storage;
+
+    m_rootNode->valCrawling(storage);
+    return storage;
 }
 
 template<typename Val, uint KeyLen>
