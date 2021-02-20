@@ -1,8 +1,6 @@
 #ifndef LINK_LIST
 #define LINK_LIST
 
-#include <QObject>
-
 #include "global.h"
 
 using appGlobal::uint;

@@ -1,8 +1,6 @@
 #ifndef HASH_H
 #define HASH_H
 
-//#include <QObject>
-
 #include <cstring>
 
 #include "global.h"
