@@ -150,6 +150,8 @@ public:
     Val value(const char *key) const;
     LinkList<Val> values() const;
 
+    bool hasKey(const char *key) const;
+
     void insert(const char *key, const Val &val);
     void erase(const char *key);
     void clear();
@@ -222,6 +224,24 @@ LinkList<Val> Tree<Val, KeyLen>::values() const
 
     m_rootNode->valCrawling(storage);
     return storage;
+}
+
+template<typename Val, uint KeyLen>
+bool Tree<Val, KeyLen>::hasKey(const char *key) const
+{
+    if(!m_rootNode)
+        return false;
+
+    Node *searchNode = m_rootNode;
+    while(searchNode) {
+        if(std::strncmp(key, searchNode->m_key, KeyLen) > 0)
+            searchNode = searchNode->m_rightChild;
+        else if(std::strncmp(key, searchNode->m_key, KeyLen) < 0)
+            searchNode = searchNode->m_leftChild;
+        else
+            return true;
+    }
+    return false;
 }
 
 template<typename Val, uint KeyLen>
