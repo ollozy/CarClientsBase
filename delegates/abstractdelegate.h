@@ -21,6 +21,8 @@ public:
 
 private:
     AbstractItemModel *m_model;
+
+    ModelIndex m_currentIndex;
 };
 
 #endif // ABSTRACTDELEGATE_H
