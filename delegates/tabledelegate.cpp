@@ -39,6 +39,9 @@ void TableDelegate::drawSelected()
 
 void TableDelegate::drawHorizontalBoard()
 {
+    if(model()->data(currentIndex()).isEmpty())
+        return;
+
     int dataSize = model()->data(currentIndex()).length();
     for(int i = 1; i < dataSize - 1; ++i) {
         std::cout << '-';
@@ -53,6 +56,9 @@ void TableDelegate::drawVerticalBorad()
 
 void TableDelegate::drawSelectedHorizontalBoard()
 {
+    if(model()->data(currentIndex()).isEmpty())
+        return;
+
     int dataSize = model()->data(currentIndex()).length();
     for(int i = 1; i < dataSize - 1; ++i) {
         std::cout << '=';
@@ -67,5 +73,8 @@ void TableDelegate::drawSelectedVerticalBoard()
 
 void TableDelegate::drawData()
 {
-    std::cout << model()->data(currentIndex()).data();
+    if(model()->data(currentIndex()).isEmpty())
+        std::cout << ' ';
+    else
+        std::cout << model()->data(currentIndex()).data();
 }
