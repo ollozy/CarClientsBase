@@ -9,6 +9,7 @@ SOURCES += \
     $$PWD/models/rentinfomodel.cpp \
     $$PWD/views/abstractitemview.cpp \
     $$PWD/views/tableview.cpp \
+    $$PWD/items.cpp \
     $$PWD/main.cpp
 
 HEADERS += \
@@ -25,6 +26,7 @@ HEADERS += \
     $$PWD/models/rentinfomodel.h \
     $$PWD/views/abstractitemview.h \
     $$PWD/views/tableview.h \
+    $$PWD/items.h \
     $$PWD/global.h
 
 RESOURCES += \
