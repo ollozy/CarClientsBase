@@ -4,6 +4,8 @@
 
 #include "../delegates/abstractdelegate.h"
 
+#include "../app_core/cstringdata.h"
+
 AbstractItemView::AbstractItemView()
     : m_model(nullptr)
     , m_delegate(nullptr)
@@ -16,7 +18,7 @@ AbstractItemView::~AbstractItemView()
 
 }
 
-void AbstractItemView::editItem(const char *newData)
+void AbstractItemView::editItem(const char *newData, int dataLen)
 {
     if(!m_delegate || !m_model)
         return;
@@ -27,7 +29,7 @@ void AbstractItemView::editItem(const char *newData)
             || !currentIndex.isMulti())
         return;
 
-    m_model->setData(newData, currentIndex);
+    m_model->setData(CStringData(newData, dataLen), currentIndex);
 }
 
 void AbstractItemView::selectItem(int row, int column)
@@ -39,6 +41,7 @@ void AbstractItemView::selectItem(int row, int column)
     if(!selectedIndex.isValid())
         return;
 
+    m_selectedItems.append(selectedIndex);
     m_delegate->setCurrentIndex(selectedIndex);
     update();
 }
@@ -51,11 +54,6 @@ void AbstractItemView::selectRow(int row)
 void AbstractItemView::selectColumn(int column)
 {
     selectItem(column, -1);
-}
-
-ModelIndex AbstractItemView::selectedItem() const
-{
-    return m_delegate ? m_delegate->currentIndex() : ModelIndex();
 }
 
 AbstractDelegate *AbstractItemView::delegate() const
@@ -82,4 +80,9 @@ void AbstractItemView::setModel(AbstractItemModel *model)
         return;
 
     m_model = model;
+}
+
+const LinkList<ModelIndex> &AbstractItemView::selectedItems() const
+{
+    return m_selectedItems;
 }

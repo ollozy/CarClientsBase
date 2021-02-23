@@ -3,6 +3,8 @@
 
 #include "../app_core/modelindex.h"
 
+#include "../app_core/linklist.h"
+
 class AbstractItemModel;
 class AbstractDelegate;
 
@@ -14,12 +16,10 @@ public:
 
     virtual void update() = 0;
 
-    virtual void editItem(const char *newData);
+    virtual void editItem(const char *newData, int dataLen);
     virtual void selectItem(int row, int column);
     virtual void selectRow(int row);
     virtual void selectColumn(int column);
-
-    ModelIndex selectedItem() const;
 
     AbstractDelegate *delegate() const;
     void setDelegate(AbstractDelegate *delegate);
@@ -27,9 +27,13 @@ public:
     AbstractItemModel *model() const;
     void setModel(AbstractItemModel *model);
 
+    const LinkList<ModelIndex> &selectedItems() const;
+
 private:
     AbstractItemModel *m_model;
     AbstractDelegate *m_delegate;
+
+    LinkList<ModelIndex> m_selectedItems;
 };
 
 #endif // ABSTRACTITEMVIEW_H
