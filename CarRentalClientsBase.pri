@@ -1,4 +1,5 @@
 SOURCES += \
+    $$PWD/app_core/cstringdata.cpp \
     $$PWD/app_core/modelindex.cpp \
     $$PWD/delegates/abstractdelegate.cpp \
     $$PWD/delegates/tabledelegate.cpp \
@@ -11,6 +12,7 @@ SOURCES += \
     $$PWD/main.cpp
 
 HEADERS += \
+    $$PWD/app_core/cstringdata.h \
     $$PWD/app_core/modelindex.h \
     $$PWD/app_core/hash.h \
     $$PWD/app_core/linklist.h \
