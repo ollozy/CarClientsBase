@@ -11,6 +11,7 @@ public:
 
 public:
     virtual void update() override;
+    virtual void selectItem(int row, int column) override;
 };
 
 #endif // TABLEVIEW_H
