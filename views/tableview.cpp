@@ -24,7 +24,10 @@ void TableView::update()
         for(int j = 0; j < rowCount; ++j) {
             ModelIndex index(i, j);
             delegate()->setCurrentIndex(index);
-            delegate()->draw();
+            if(selectedItems().contains(index))
+                delegate()->drawSelected();
+            else
+                delegate()->draw();
         }
     }
 }
