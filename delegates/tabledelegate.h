@@ -9,15 +9,14 @@ public:
     TableDelegate();
     ~TableDelegate();
 
-    virtual void draw() override;
-    virtual void drawSelected() override;
+    virtual void drawHorizontalBoard(bool selected) override;
+    virtual void drawVerticalBorad(bool selected) override;
+    virtual void drawData() override;
+    virtual void drawNextLine() override;
 
 private:
-    void drawHorizontalBoard();
-    void drawVerticalBorad();
-    void drawSelectedHorizontalBoard();
-    void drawSelectedVerticalBoard();
-    void drawData();
+    void drawUtfFixedData(const char *data);
+    int realStringLen(const char *data);
 };
 
 #endif // TABLEDELEGATE_H

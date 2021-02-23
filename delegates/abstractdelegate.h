@@ -11,8 +11,11 @@ public:
     AbstractDelegate();
     virtual ~AbstractDelegate();
 
-    virtual void draw() = 0;
-    virtual void drawSelected() = 0;
+    virtual void drawHorizontalBoard(bool selected) = 0;
+    virtual void drawVerticalBorad(bool selected) = 0;
+    virtual void drawData() = 0;
+    virtual void drawNextLine() = 0;
+
 
     const ModelIndex &currentIndex() const;
     void setCurrentIndex(const ModelIndex &index);

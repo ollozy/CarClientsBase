@@ -5,6 +5,8 @@
 #include "../app_core/cstringdata.h"
 
 #include <iostream>
+#include <iomanip>
+#include <cstring>
 
 TableDelegate::TableDelegate()
     : AbstractDelegate()
@@ -17,58 +19,21 @@ TableDelegate::~TableDelegate()
 
 }
 
-void TableDelegate::draw()
+void TableDelegate::drawHorizontalBoard(bool selected)
 {
-    drawHorizontalBoard();
-    drawVerticalBorad();
-    drawData();
-    drawVerticalBorad();
-    std::cout << '\n';
-    drawHorizontalBoard();
+    std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
+    char board = selected ? '=' : '-';
+    std::cout.fill(board);
+    std::cout.width(fieldWidth() + 3);
+
+    std::cout << "  ";
+    std::cout.fill(' ');
+    std::cout.unsetf(std::ios_base::adjustfield);
 }
 
-void TableDelegate::drawSelected()
+void TableDelegate::drawVerticalBorad(bool selected)
 {
-    drawSelectedHorizontalBoard();
-    drawSelectedVerticalBoard();
-    drawData();
-    drawSelectedVerticalBoard();
-    std::cout << '\n';
-    drawSelectedHorizontalBoard();
-}
-
-void TableDelegate::drawHorizontalBoard()
-{
-    if(model()->data(currentIndex()).isEmpty())
-        return;
-
-    int dataSize = model()->data(currentIndex()).length();
-    for(int i = 1; i < dataSize - 1; ++i) {
-        std::cout << '-';
-    }
-    std::cout << '\n';
-}
-
-void TableDelegate::drawVerticalBorad()
-{
-    std::cout << " | ";
-}
-
-void TableDelegate::drawSelectedHorizontalBoard()
-{
-    if(model()->data(currentIndex()).isEmpty())
-        return;
-
-    int dataSize = model()->data(currentIndex()).length();
-    for(int i = 1; i < dataSize - 1; ++i) {
-        std::cout << '=';
-    }
-    std::cout << '\n';
-}
-
-void TableDelegate::drawSelectedVerticalBoard()
-{
-    std::cout << " || ";
+    std::cout << (selected ? " ! " : " | ");
 }
 
 void TableDelegate::drawData()
@@ -76,5 +41,30 @@ void TableDelegate::drawData()
     if(model()->data(currentIndex()).isEmpty())
         std::cout << ' ';
     else
-        std::cout << model()->data(currentIndex()).data();
+        drawUtfFixedData(model()->data(currentIndex()).data());
+}
+
+void TableDelegate::drawNextLine()
+{
+    std::cout << std::endl;
+}
+
+void TableDelegate::drawUtfFixedData(const char *data)
+{
+    std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
+    std::cout << std::setw(realStringLen(data)) << data;
+    std::cout.unsetf(std::ios_base::adjustfield);
+}
+
+int TableDelegate::realStringLen(const char *data)
+{
+    uint strlen = 0;
+    for(uint i = 0; data[i] != '\0'; ++i) {
+        if(i % 2 == 0
+                || std::isalnum(data[i])
+                || std::ispunct(data[i])
+                || std::isspace(data[i]))
+            strlen += 1;
+    }
+    return std::strlen(data) + fieldWidth() - strlen;
 }
