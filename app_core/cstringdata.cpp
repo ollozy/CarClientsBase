@@ -1,6 +1,7 @@
 #include "cstringdata.h"
 
 #include <cstring>
+#include <sstream>
 
 CStringData::CStringData()
     : m_data(nullptr)
@@ -14,6 +15,14 @@ CStringData::CStringData(const char *data, int len)
 {
     m_data = new char[m_len];
     std::strncpy(m_data, data, len);
+}
+
+CStringData::CStringData(int data)
+    : m_data(new char[100])
+    , m_len(100)
+{
+    std::stringstream stream(m_data);
+    stream << data;
 }
 
 CStringData::CStringData(const CStringData &other)
@@ -61,6 +70,17 @@ void CStringData::setData(const char *data, int len)
         delete[] m_data;
     m_data = new char[m_len];
     std::strncpy(m_data, data, m_len);
+}
+
+void CStringData::setData(int data)
+{
+    m_len = 100;
+    if(m_data)
+        delete[] m_data;
+    m_data = new char[m_len];
+
+    std::stringstream stream(m_data);
+    stream << data;
 }
 
 bool CStringData::isEmpty() const

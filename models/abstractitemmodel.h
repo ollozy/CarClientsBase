@@ -11,7 +11,7 @@ public:
     AbstractItemModel();
     virtual ~AbstractItemModel();
 
-    virtual const CStringData &data(const ModelIndex &index) const = 0;
+    virtual CStringData data(const ModelIndex &index) const = 0;
     virtual void setData(const CStringData &data, const ModelIndex &index) = 0;
 
     virtual void insertColumn(int column) = 0;

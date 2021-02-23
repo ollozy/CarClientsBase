@@ -1,7 +1,7 @@
 ﻿#ifndef CLIENT_H
 #define CLIENT_H
 
-#include "app_global.h"
+#include "global.h"
 
 class Client
 {
