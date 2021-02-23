@@ -23,7 +23,7 @@ ModelIndex::ModelIndex(const ModelIndex &other)
 
 const ModelIndex &ModelIndex::operator=(const ModelIndex &other)
 {
-    if(this != &other)
+    if(this == &other)
         return *this;
 
     m_row = other.m_row;
