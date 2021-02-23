@@ -1,4 +1,5 @@
 SOURCES += \
+    $$PWD/app_core/modelindex.cpp \
     $$PWD/delegates/abstractdelegate.cpp \
     $$PWD/delegates/tabledelegate.cpp \
     $$PWD/models/abstractitemmodel.cpp \
@@ -6,10 +7,14 @@ SOURCES += \
     $$PWD/models/clientsmodel.cpp \
     $$PWD/models/rentinfomodel.cpp \
     $$PWD/views/abstractitemview.cpp \
-    $$PWD/main.cpp \
-    $$PWD/views/tableview.cpp
+    $$PWD/views/tableview.cpp \
+    $$PWD/main.cpp
 
 HEADERS += \
+    $$PWD/app_core/modelindex.h \
+    $$PWD/app_core/hash.h \
+    $$PWD/app_core/linklist.h \
+    $$PWD/app_core/searchtree.h \
     $$PWD/delegates/abstractdelegate.h \
     $$PWD/delegates/tabledelegate.h \
     $$PWD/models/abstractitemmodel.h \
@@ -17,11 +22,8 @@ HEADERS += \
     $$PWD/models/clientsmodel.h \
     $$PWD/models/rentinfomodel.h \
     $$PWD/views/abstractitemview.h \
-    $$PWD/global.h \
-    $$PWD/app_core/hash.h \
-    $$PWD/app_core/linklist.h \
-    $$PWD/app_core/searchtree.h \
-    $$PWD/views/tableview.h
+    $$PWD/views/tableview.h \
+    $$PWD/global.h
 
 RESOURCES += \
     $$PWD/qml.qrc
