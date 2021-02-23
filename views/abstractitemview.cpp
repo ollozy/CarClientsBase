@@ -1,6 +1,7 @@
 #include "abstractitemview.h"
 
 #include "../models/abstractitemmodel.h"
+
 #include "../delegates/abstractdelegate.h"
 
 AbstractItemView::AbstractItemView()
