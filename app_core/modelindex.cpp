@@ -7,6 +7,13 @@ ModelIndex::ModelIndex()
 
 }
 
+ModelIndex::ModelIndex(int row, int column)
+    : m_row(row)
+    , m_column(column)
+{
+
+}
+
 int ModelIndex::row() const
 {
     return m_row;
