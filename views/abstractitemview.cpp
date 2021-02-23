@@ -67,6 +67,7 @@ void AbstractItemView::setDelegate(AbstractDelegate *delegate)
         return;
 
     m_delegate = delegate;
+    m_delegate->setModel(m_model);
 }
 
 AbstractItemModel *AbstractItemView::model() const
@@ -80,6 +81,8 @@ void AbstractItemView::setModel(AbstractItemModel *model)
         return;
 
     m_model = model;
+    m_delegate->setModel(m_model);
+    m_selectedItems.clear();
 }
 
 const LinkList<ModelIndex> &AbstractItemView::selectedItems() const

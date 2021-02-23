@@ -4,6 +4,8 @@
 
 #include "../delegates/abstractdelegate.h"
 
+#include <iostream>
+
 TableView::TableView()
     : AbstractItemView()
 {
@@ -20,15 +22,40 @@ void TableView::update()
     int columnCount = model()->columnCount();
     int rowCount = model()->rowCount();
 
-    for(int i = 0; i < columnCount; ++i) {
-        for(int j = 0; j < rowCount; ++j) {
-            ModelIndex index(i, j);
-            delegate()->setCurrentIndex(index);
-            if(selectedItems().contains(index))
-                delegate()->drawSelected();
+    bool needBoard = false;
+    bool noNeedBoard = false;
+    int realRow = 0;
+    for(int i = realRow; i < rowCount + 2; ++i) {
+        if(i == 2 || i == 0)
+            needBoard = true;
+        for(int j = 0; j < columnCount; ++j) {
+            ModelIndex index(realRow, j);
+
+            bool isSelected = selectedItems().contains(index);
+
+            if(j == 0)
+                delegate()->setFieldWidth(2);
             else
-                delegate()->draw();
+                delegate()->setFieldWidth(20);
+
+            if(needBoard) {
+                delegate()->drawHorizontalBoard(isSelected);
+                continue;
+            }
+
+            delegate()->setCurrentIndex(index);
+            delegate()->drawVerticalBorad(isSelected);
+            delegate()->drawData();
         }
+        if(!needBoard)
+            delegate()->drawVerticalBorad(selectedItems().contains(ModelIndex(i, columnCount - 1)));
+        else {
+            --realRow;
+            needBoard = false;
+            noNeedBoard = true;
+        }
+        ++realRow;
+        std::cout << std::endl;
     }
 }
 
