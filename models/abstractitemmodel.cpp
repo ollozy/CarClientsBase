@@ -16,15 +16,33 @@ AbstractItemModel::~AbstractItemModel()
     delete[] m_headers;
 }
 
-const CStringData &AbstractItemModel::headerData(int column)
+int AbstractItemModel::headerSize() const
 {
+    return m_headersSize;
+}
+
+void AbstractItemModel::setHeaderSize(int size)
+{
+    if(m_headersSize == size)
+        return;
+
+    m_headersSize = size;
+    if(!m_headers)
+        m_headers = new CStringData[m_headersSize];
+}
+
+CStringData AbstractItemModel::headerData(int column) const
+{
+    if(m_headersSize - 1 < column)
+        return CStringData();
+
     return m_headers[column];
 }
 
 void AbstractItemModel::setHeaderData(const CStringData &data, int column)
 {
     if(column > m_headersSize)
-        resizeHeaderStorage(column + 1);
+        return;
 
     m_headers[column] = data;
 }

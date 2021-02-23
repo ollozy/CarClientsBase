@@ -21,7 +21,9 @@ public:
     virtual int columnCount() const = 0;
     virtual int rowCount() const = 0;
 
-    const CStringData &headerData(int column);
+    int headerSize() const;
+    void setHeaderSize(int size);
+    CStringData headerData(int column) const;
     void setHeaderData(const CStringData &data, int column);
 
 private:
@@ -29,7 +31,7 @@ private:
 
 private:
     CStringData *m_headers;
-    int m_headersSize;;
+    int m_headersSize;
 };
 
 #endif // ABSTRACTITEMMODEL_H

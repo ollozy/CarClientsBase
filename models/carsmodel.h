@@ -15,6 +15,8 @@ public:
     CarsModel();
     ~CarsModel();
 
+    void initHeader();
+
     virtual CStringData data(const ModelIndex &index) const override;
     virtual void setData(const CStringData &data, const ModelIndex &index) override;
     virtual void insertColumn(int column) override;
@@ -26,7 +28,7 @@ public:
     void insertRow(const Car &value);
 
 private:
-    virtual void insertRow(int row) override;
+    void insertRow(int row) override;
 
 private:
     Hash<Car, app_global::car::numberLen> m_currentStorage;
