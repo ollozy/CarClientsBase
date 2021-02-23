@@ -4,7 +4,7 @@
 
 CStringData::CStringData()
     : m_data(nullptr)
-    , m_len(0)
+    , m_len(-1)
 {
 
 }
@@ -65,5 +65,5 @@ void CStringData::setData(const char *data, int len)
 
 bool CStringData::isEmpty() const
 {
-    return m_len == 0 || !m_data;
+    return !(m_len > 0) || !m_data;
 }
