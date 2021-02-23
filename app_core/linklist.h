@@ -154,6 +154,14 @@ public:
         return *pNode->data();
     }
 
+    bool contains(const T &val) const
+    {
+        for(LinkList<T>::iterator it = begin(); it != end(); ++it)
+            if(*it == val)
+                return true;
+        return false;
+    }
+
     void append(const T &val)
     {
         if(isEmpty()) {
