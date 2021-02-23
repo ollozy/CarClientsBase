@@ -12,6 +12,7 @@ public:
     virtual ~AbstractDelegate();
 
     virtual void draw() = 0;
+    virtual void drawSelected() = 0;
 
     const ModelIndex &currentIndex() const;
     void setCurrentIndex(const ModelIndex &index);

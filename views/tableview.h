@@ -7,6 +7,10 @@ class TableView : public AbstractItemView
 {
 public:
     TableView();
+    ~TableView();
+
+public:
+    virtual void update() override;
 };
 
 #endif // TABLEVIEW_H
