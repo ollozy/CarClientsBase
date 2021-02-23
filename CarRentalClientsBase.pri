@@ -10,6 +10,7 @@ SOURCES += \
     $$PWD/views/abstractitemview.cpp \
     $$PWD/views/tableview.cpp \
     $$PWD/items.cpp \
+    $$PWD/mainwindow.cpp \
     $$PWD/main.cpp
 
 HEADERS += \
@@ -27,7 +28,5 @@ HEADERS += \
     $$PWD/views/abstractitemview.h \
     $$PWD/views/tableview.h \
     $$PWD/items.h \
+    $$PWD/mainwindow.h \
     $$PWD/global.h
-
-RESOURCES += \
-    $$PWD/qml.qrc

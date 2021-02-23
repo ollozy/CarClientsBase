@@ -1,5 +1,4 @@
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
+#include "mainwindow.h"
 
 /*
  * Предметная область: Обслуживание клиентов в бюро проката автомобилей (см. п. 9.2)
@@ -114,18 +113,7 @@
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
-    QGuiApplication app(argc, argv);
-
-    QQmlApplicationEngine engine;
-    const QUrl url(QStringLiteral("qrc:/main.qml"));
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-                     &app, [url](QObject *obj, const QUrl &objUrl) {
-        if (!obj && url == objUrl)
-            QCoreApplication::exit(-1);
-    }, Qt::QueuedConnection);
-    engine.load(url);
-
-    return app.exec();
+    MainWindow w;
+    w.open();
+    return 0;
 }

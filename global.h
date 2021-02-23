@@ -1,7 +1,6 @@
 #ifndef APP_GLOBAL_H
 #define APP_GLOBAL_H
 
-//#include <cstdlib>
 #include <cassert>
 
 typedef unsigned int uint;
