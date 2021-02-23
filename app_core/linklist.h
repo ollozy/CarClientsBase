@@ -3,8 +3,6 @@
 
 #include "global.h"
 
-using appGlobal::uint;
-
 template<typename T> class LinkList;
 template<typename Node> class ListIterator;
 
@@ -128,6 +126,8 @@ public:
         if (this == &li)
             return *this;
 
+        clear();
+
         for(LinkList<T>::iterator it = li.begin(); it != li.end(); ++it)
             append(*it);
 
@@ -135,7 +135,7 @@ public:
     }
     T& operator[](int i)
     {
-        Q_ASSERT_X(i < m_size, "LinkList<T>::operator[]", "index out of range");
+        assert(i < m_size);
         if(!(i < m_size))
             return *m_end->data();
         Node *pNode = m_begin;
@@ -145,7 +145,7 @@ public:
     }
     const T& operator[](int i) const
     {
-        Q_ASSERT_X(i < m_size, "LinkList<T>::operator[]", "index out of range");
+        assert(i < m_size);
         if(!(i < m_size))
             return *m_end->data();
         Node *pNode = m_begin;
@@ -161,7 +161,6 @@ public:
                 return true;
         return false;
     }
-
     void append(const T &val)
     {
         if(isEmpty()) {
@@ -193,7 +192,7 @@ public:
 
     iterator insert(const T& val, iterator before)
     {
-        Q_ASSERT_X(before.__getNode(), "LinkList::insert", "The specified iterator argument 'before' is invalid");
+        assert(before.__getNode());
         if(!before.__getNode())
             return iterator();
         else if(before.__getNode() == m_begin) {
@@ -214,7 +213,7 @@ public:
     }
     iterator erase(iterator delIter)
     {
-        Q_ASSERT_X(delIter.isValid(), "LinkList::erase", "The specified iterator argument 'delIter' is invalid");
+        assert(delIter.isValid());
         if(!delIter.isValid())
             return iterator();
         else if(delIter.__getNode() == m_begin) {

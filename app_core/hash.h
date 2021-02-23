@@ -6,19 +6,9 @@
 #include "global.h"
 #include "linklist.h"
 
-#ifdef QT_DEBUG
-#include <QFile>
-#include <QDebug>
-#endif
-
-using appGlobal::uint;
-
-
 template<typename Val, uint KeyLen>
 class Hash
 {
-    static char deletedSegment[KeyLen];
-    static char emptySegment[KeyLen];
     static const uint minHashFunc;
     static const uint maxHashFunc;
     static const uint linearStep;
@@ -31,15 +21,15 @@ class Hash
 
     struct Data {
         explicit Data(Val val = Val())
-            : m_data(val),
-              m_key(new char[KeyLen])
-        { std::strncpy(m_key, emptySegment, KeyLen); }
-        ~Data() { delete[] m_key; }
+            : m_data(val)
+            , m_key(new char[KeyLen])
+            , m_empty(true)
+            , m_deleted(false) {}
+        ~Data() { delete [] m_key; }
         Val m_data;
         char* m_key;
-#ifdef QT_DEBUG
-        uchar m_cellCall = 0;
-#endif
+        bool m_empty;
+        bool m_deleted;
     };
 
 public:
@@ -47,13 +37,7 @@ public:
         : m_size(0)
         , m_capacity(initCapacity)
         , m_multiCoef(static_cast<uint>(m_capacity / (maxHashFunc - minHashFunc)))
-        , m_elements(new Data[m_capacity]) {
-        for(uint i = 0; i < KeyLen - 1; ++i) {
-            emptySegment[i] = ' ';
-            deletedSegment[i] = '*';
-        }
-        emptySegment[KeyLen] = deletedSegment[KeyLen] = '\0';
-    }
+        , m_elements(new Data[m_capacity]) {}
     ~Hash() { delete[] m_elements; }
 
     void insert(const char* key, const Val& value);
@@ -72,19 +56,6 @@ public:
     uint size() const;
     uint capacity() const;
 
-#ifdef QT_DEBUG
-    bool getTestFile(const char *fileName) {
-        QFile testFile(fileName);
-        if(!testFile.open(QIODevice::WriteOnly))
-            qDebug() << "cannot open file" << fileName << "for write";
-        QTextStream stream(&testFile);
-        for (uint i = 0; i < m_capacity; ++i)
-            stream << QString::number(m_elements[i].m_cellCall) << '\n';
-        testFile.close();
-        return true;
-    }
-#endif
-
 private:
     void resize(uint newSize);
     uint hashFunction(const char* key) const;
@@ -98,10 +69,6 @@ private:
     Data* m_elements;
 };
 
-template<typename Val, uint KeyLen>
-char Hash<Val, KeyLen>::deletedSegment[KeyLen];
-template<typename Val, uint KeyLen>
-char Hash<Val, KeyLen>::emptySegment[KeyLen];
 template<typename Val, uint KeyLen>
 const uint Hash<Val, KeyLen>::minHashFunc = 240;
 template<typename Val, uint KeyLen>
@@ -122,10 +89,11 @@ void Hash<Val, KeyLen>::insert(const char *key, const Val &value)
             m_elements[seg].m_data = value;
             return;
         }
-        else if(std::strncmp(m_elements[seg].m_key, deletedSegment, KeyLen) == 0 ||
-                std::strncmp(m_elements[seg].m_key, emptySegment, KeyLen) == 0) {
+        else if(m_elements[seg].m_empty || m_elements[seg].m_deleted) {
             m_elements[seg].m_data = value;
             std::strncpy(m_elements[seg].m_key, key, KeyLen);
+            m_elements[seg].m_deleted = false;
+            m_elements[seg].m_empty = false;
             ++m_size;
             return;
         }
@@ -142,7 +110,7 @@ void Hash<Val, KeyLen>::erase(const char *key)
     uint seg = hashFunction(key);
     for(uint i = 0; seg < m_capacity; ++i) {
         if(std::strncmp(key, m_elements[seg].m_key, KeyLen) == 0) {
-            std::strncpy(m_elements[seg].m_key, deletedSegment, KeyLen);
+            m_elements[seg].m_deleted = true;
             --m_size;
             return;
         }
@@ -154,13 +122,6 @@ void Hash<Val, KeyLen>::erase(const char *key)
 template<typename Val, uint KeyLen>
 void Hash<Val, KeyLen>::clear()
 {
-    for(uint seg = 0; seg < m_capacity; ++seg) {
-        if(std::strncmp(m_elements[seg].m_key, deletedSegment, KeyLen) != 0
-                && std::strncmp(m_elements[seg].m_key, emptySegment, KeyLen) != 0) {
-            std::strncmp(m_elements[seg].m_key, deletedSegment, KeyLen);
-            --m_size;
-        }
-    }
     m_capacity = initCapacity;
     delete[] m_elements;
     m_elements = new Data[m_capacity];
@@ -170,6 +131,8 @@ void Hash<Val, KeyLen>::clear()
 template<typename Val, uint KeyLen>
 Val &Hash<Val, KeyLen>::operator[](const char *key)
 {
+    assert(hasKey(key));
+
     uint seg = hashFunction(key);
     for (uint i = 0; seg < m_capacity; ++i) {
         if (std::strncmp(m_elements[seg].m_key, key, KeyLen) == 0)
@@ -179,7 +142,6 @@ Val &Hash<Val, KeyLen>::operator[](const char *key)
             continue;
         }
     }
-    Q_ASSERT_X(false, "Hash<Val, KeyLen>::operator[]", "access to hash with out of range key");
     return m_elements[0].m_data;
 }
 
@@ -194,10 +156,8 @@ LinkList<char *> Hash<Val, KeyLen>::keys() const
 {
     LinkList<char *> keyList;
     for(uint i = 0; i < m_capacity; ++i) {
-        if(std::strncmp(m_elements[i].m_key, emptySegment, KeyLen) != 0
-                && std::strncmp(m_elements[i].m_key, deletedSegment, KeyLen) != 0) {
+        if(!m_elements[i].m_empty && !m_elements[i].m_deleted)
             keyList.append(m_elements[i].m_key);
-        }
     }
     return keyList;
 }
@@ -207,8 +167,7 @@ LinkList<Val> Hash<Val, KeyLen>::values() const
 {
     LinkList<Val> keyList;
     for(uint i = 0; i < m_capacity; ++i) {
-        if(std::strncmp(m_elements[i].m_key, emptySegment, KeyLen) != 0
-                && std::strncmp(m_elements[i].m_key, deletedSegment, KeyLen) != 0) {
+        if(!m_elements[i].m_empty && !m_elements[i].m_deleted) {
             keyList.append(m_elements[i].m_data);
         }
     }
@@ -230,7 +189,9 @@ bool Hash<Val, KeyLen>::hasKey(const char *key) const
 {
     uint seg = hashFunction(key);
     for(uint i = 0; seg < m_capacity; ++i) {
-        if(std::strncmp(key, m_elements[seg].m_key, KeyLen) == 0)
+        if(m_elements[i].m_empty || m_elements[i].m_deleted)
+            continue;
+        else if(std::strncmp(key, m_elements[seg].m_key, KeyLen) == 0)
             return true;
         else
             linearTesting(i, seg);
@@ -263,8 +224,7 @@ void Hash<Val, KeyLen>::resize(uint newSize)
     m_capacity = newSize;
     m_size = 0;
     for(uint i = 0; i < newSize; ++i) {
-        if(std::strncmp(temp[i].m_key, deletedSegment, KeyLen) != 0
-                && std::strncmp(temp[i].m_key, emptySegment, KeyLen) != 0) {
+        if(!m_elements[i].m_empty && !m_elements[i].m_deleted) {
             insert(temp[i].m_key, temp[i].m_data);
         }
     }

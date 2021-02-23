@@ -1,13 +1,12 @@
 #ifndef SEARCHTREE_H
 #define SEARCHTREE_H
 
-#include <typeinfo>
 #include <cstring>
 
 #include "global.h"
 #include "linklist.h"
 
-using appGlobal::uint;
+;
 
 template<typename Val, uint KeyLen>
 class Tree {
@@ -184,7 +183,7 @@ Val &Tree<Val, KeyLen>::operator[](const char *key)
     if(searchNode)
         return searchNode->m_data;
     else {
-        Q_ASSERT_X(searchNode, "Tree::get", "Attemp access to nonexistent node");
+        assert(searchNode);
         return m_rootNode->m_data;
     }
 }
@@ -210,7 +209,7 @@ Val Tree<Val, KeyLen>::value(const char *key) const
         else
             return searchNode->m_data;
     }
-    Q_ASSERT_X(searchNode, "Tree::get", "Attemp access to nonexistent node");
+    assert(searchNode);
     return Val();
 
 }
