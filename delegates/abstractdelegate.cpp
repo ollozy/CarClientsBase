@@ -3,6 +3,7 @@
 AbstractDelegate::AbstractDelegate()
     : m_model(nullptr)
     , m_currentIndex()
+    , m_fieldWidth(0)
 {
 
 }
@@ -35,4 +36,14 @@ void AbstractDelegate::setModel(AbstractItemModel *model)
         return;
 
     m_model = model;
+}
+
+int AbstractDelegate::fieldWidth() const
+{
+    return m_fieldWidth;
+}
+
+void AbstractDelegate::setFieldWidth(int fieldWidth)
+{
+    m_fieldWidth = fieldWidth;
 }

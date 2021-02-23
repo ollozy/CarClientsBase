@@ -20,10 +20,15 @@ public:
     AbstractItemModel *model() const;
     void setModel(AbstractItemModel *model);
 
+    int fieldWidth() const;
+    void setFieldWidth(int fieldWidth);
+
 private:
     AbstractItemModel *m_model;
 
     ModelIndex m_currentIndex;
+
+    int m_fieldWidth;
 };
 
 #endif // ABSTRACTDELEGATE_H
