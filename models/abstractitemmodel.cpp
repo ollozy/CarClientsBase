@@ -3,6 +3,7 @@
 #include "../app_core/cstringdata.h"
 
 #include <cstring>
+#include <cctype>
 
 AbstractItemModel::AbstractItemModel()
     : m_headers(nullptr)

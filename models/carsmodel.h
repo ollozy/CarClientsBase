@@ -6,7 +6,6 @@
 #include "../app_core/hash.h"
 #include "../app_core/linklist.h"
 
-#include "../global.h"
 #include "../items.h"
 
 class CarsModel : public AbstractItemModel
@@ -31,7 +30,7 @@ private:
     void insertRow(int row) override;
 
 private:
-    Hash<Car, app_global::car::numberLen> m_currentStorage;
+    Hash<Car, app_global::car::numberMaxLen> m_currentStorage;
     LinkList<Car> m_showList;
 };
 

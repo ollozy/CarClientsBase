@@ -155,11 +155,11 @@ public:
     void erase(const char *key);
     void clear();
 
-    uint size() const { return m_size; }
+    int size() const { return m_size; }
 
 private:
     Node *m_rootNode;
-    uint m_size;
+    int m_size;
 };
 
 template<typename Val, uint KeyLen>

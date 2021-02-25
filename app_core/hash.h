@@ -53,8 +53,8 @@ public:
     const char *key(const Val &val) const;
     bool hasKey(const char *key) const;
 
-    uint size() const;
-    uint capacity() const;
+    int size() const;
+    int capacity() const;
 
 private:
     void resize(uint newSize);
@@ -62,9 +62,9 @@ private:
     void linearTesting(uint tryNum, uint& seg) const;
 
 private:
-    uint m_size;
-    uint m_capacity;
-    uint m_multiCoef;
+    int m_size;
+    int m_capacity;
+    int m_multiCoef;
 
     Data* m_elements;
 };
@@ -200,13 +200,13 @@ bool Hash<Val, KeyLen>::hasKey(const char *key) const
 }
 
 template<typename Val, uint KeyLen>
-uint Hash<Val, KeyLen>::size() const
+int Hash<Val, KeyLen>::size() const
 {
     return m_size;
 }
 
 template<typename Val, uint KeyLen>
-uint Hash<Val, KeyLen>::capacity() const
+int Hash<Val, KeyLen>::capacity() const
 {
     return m_capacity;
 }

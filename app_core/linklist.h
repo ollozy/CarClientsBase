@@ -116,7 +116,7 @@ public:
         delete m_begin;
     }
 
-    uint size() const { return m_size; }
+    int size() const { return m_size; }
     bool isEmpty() const { return m_begin == m_end; }
     iterator begin() const { return iterator(m_begin); }
     iterator end() const { return iterator(m_end);}
@@ -245,6 +245,6 @@ public:
 private:
     Node *m_begin;
     Node *m_end;
-    uint m_size;
+    int m_size;
 };
 #endif //LINK_LIST

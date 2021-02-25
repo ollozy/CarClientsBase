@@ -1,5 +1,7 @@
 ﻿#include "mainwindow.h"
 
+#include "./app_core/cstringdata.h"
+
 #include <limits>
 #include <iomanip>
 #include <iostream>
@@ -8,13 +10,15 @@ MainWindow::MainWindow()
     : m_command(-1)
     , m_exit(false)
     , m_showHint(true)
-    , m_table(new TableView)
-    , m_delegate(new TableDelegate)
+    , m_list(new ListView)
+    , m_delegate(new ListDelegate)
     , m_carModel(new CarsModel)
 {
-    m_table->setDelegate(m_delegate);
-    m_table->setModel(m_carModel);
+    m_list->setDelegate(m_delegate);
+    m_list->setModel(m_carModel);
     m_carModel->initHeader();
+    m_delegate->setFieldWidth(app_global::numberOfLetters(m_carModel->headerData(0).data()));
+    m_list->selectRow(-1);
 }
 
 MainWindow::~MainWindow()
@@ -41,7 +45,7 @@ void MainWindow::open()
 void MainWindow::update()
 {
     system("clear");
-    m_table->update();
+    m_list->update();
     if(m_showHint)
         showHint();
     std::cout << "\ruser:~> ";

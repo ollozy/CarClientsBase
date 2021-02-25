@@ -3,11 +3,11 @@
 
 #include "abstractitemview.h"
 
-class TableView : public AbstractItemView
+class ListView : public AbstractItemView
 {
 public:
-    TableView();
-    ~TableView();
+    ListView();
+    ~ListView();
 
 public:
     virtual void update() override;

@@ -1,11 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "global.h"
-
-#include "./views/tableview.h"
+#include "./views/listview.h"
 #include "./models/carsmodel.h"
-#include "./delegates/tabledelegate.h"
+#include "./delegates/listdelegate.h"
 
 class MainWindow
 {
@@ -41,8 +39,8 @@ private:
     bool m_exit;
     bool m_showHint;
 
-    TableView *m_table;
-    TableDelegate *m_delegate;
+    ListView *m_list;
+    ListDelegate *m_delegate;
     CarsModel *m_carModel;
 };
 
