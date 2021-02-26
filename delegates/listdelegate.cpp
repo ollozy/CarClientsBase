@@ -1,12 +1,14 @@
 #include "listdelegate.h"
 
-#include "../models/abstractitemmodel.h"
+#include "../models/carsmodel.h"
+#include "../items.h"
 
 #include "../app_core/cstringdata.h"
 
+#include "../global.h"
+
 #include <iostream>
 #include <iomanip>
-#include <cstring>
 
 ListDelegate::ListDelegate()
     : AbstractDelegate()
@@ -26,14 +28,14 @@ void ListDelegate::drawHorizontalBoard(bool selected)
     std::cout.fill(board);
     std::cout.width(fieldWidth() + 3);
 
-    std::cout << "  ";
+    std::cout << "\r  ";
     std::cout.fill(' ');
     std::cout.unsetf(std::ios_base::adjustfield);
 }
 
 void ListDelegate::drawVerticalBorad(bool selected)
 {
-    std::cout << (selected ? " ! " : " | ");
+    std::cout << (selected ? " # " : " | ");
 }
 
 void ListDelegate::drawData()
