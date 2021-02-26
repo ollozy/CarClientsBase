@@ -85,16 +85,16 @@ void Hash<Val, KeyLen>::insert(const char *key, const Val &value)
         resize(static_cast<uint>(m_capacity * 1.5));
     uint seg = hashFunction(key);
     for(uint i = 0; seg < m_capacity; ++i) {
-        if(std::strncmp(m_elements[seg].m_key, key, KeyLen) == 0) {
-            m_elements[seg].m_data = value;
-            return;
-        }
-        else if(m_elements[seg].m_empty || m_elements[seg].m_deleted) {
+        if(m_elements[seg].m_empty || m_elements[seg].m_deleted) {
             m_elements[seg].m_data = value;
             std::strncpy(m_elements[seg].m_key, key, KeyLen);
             m_elements[seg].m_deleted = false;
             m_elements[seg].m_empty = false;
             ++m_size;
+            return;
+        }
+        else if(std::strncmp(m_elements[seg].m_key, key, KeyLen) == 0) {
+            m_elements[seg].m_data = value;
             return;
         }
         else
