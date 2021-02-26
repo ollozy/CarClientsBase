@@ -8,7 +8,7 @@
 
 ;
 
-template<typename Val, uint KeyLen>
+template<typename Val, int KeyLen>
 class Tree {
 
     struct Node {
@@ -22,15 +22,15 @@ class Tree {
 
         int balanceFactor() const
         {
-            uint leftHeight = m_leftChild ? m_leftChild->m_height : 0;
-            uint rightHeight = m_rightChild ? m_rightChild->m_height : 0;
+            int leftHeight = m_leftChild ? m_leftChild->m_height : 0;
+            int rightHeight = m_rightChild ? m_rightChild->m_height : 0;
 
             return rightHeight - leftHeight;
         }
         void fixHeight()
         {
-            uint leftHeight = m_leftChild ? m_leftChild->m_height : 0;
-            uint rightHeight = m_rightChild ? m_rightChild->m_height : 0;
+            int leftHeight = m_leftChild ? m_leftChild->m_height : 0;
+            int rightHeight = m_rightChild ? m_rightChild->m_height : 0;
 
             m_height = (leftHeight > rightHeight ? leftHeight : rightHeight) + 1;
         }
@@ -134,7 +134,7 @@ class Tree {
 
         Val m_data;
         char *m_key;
-        uint m_height;
+        int m_height;
         Node *m_rightChild;
         Node *m_leftChild;
     };
@@ -162,7 +162,7 @@ private:
     int m_size;
 };
 
-template<typename Val, uint KeyLen>
+template<typename Val, int KeyLen>
 Val &Tree<Val, KeyLen>::operator[](const char *key)
 {
     Node *searchNode = m_rootNode;
@@ -188,13 +188,13 @@ Val &Tree<Val, KeyLen>::operator[](const char *key)
     }
 }
 
-template<typename Val, uint KeyLen>
+template<typename Val, int KeyLen>
 const Val &Tree<Val, KeyLen>::operator[](const char *key) const
 {
     return operator[](key);
 }
 
-template<typename Val, uint KeyLen>
+template<typename Val, int KeyLen>
 Val Tree<Val, KeyLen>::value(const char *key) const
 {
     if(!m_rootNode)
@@ -214,7 +214,7 @@ Val Tree<Val, KeyLen>::value(const char *key) const
 
 }
 
-template<typename Val, uint KeyLen>
+template<typename Val, int KeyLen>
 LinkList<Val> Tree<Val, KeyLen>::values() const
 {
     LinkList<Val> storage;
@@ -225,7 +225,7 @@ LinkList<Val> Tree<Val, KeyLen>::values() const
     return storage;
 }
 
-template<typename Val, uint KeyLen>
+template<typename Val, int KeyLen>
 bool Tree<Val, KeyLen>::hasKey(const char *key) const
 {
     if(!m_rootNode)
@@ -243,7 +243,7 @@ bool Tree<Val, KeyLen>::hasKey(const char *key) const
     return false;
 }
 
-template<typename Val, uint KeyLen>
+template<typename Val, int KeyLen>
 void Tree<Val, KeyLen>::insert(const char *key, const Val &val)
 {
     ++m_size;
@@ -254,7 +254,7 @@ void Tree<Val, KeyLen>::insert(const char *key, const Val &val)
     m_rootNode = m_rootNode->insertNode(key, val);
 }
 
-template<typename Val, uint KeyLen>
+template<typename Val, int KeyLen>
 void Tree<Val, KeyLen>::erase(const char *key)
 {
     --m_size;
@@ -263,7 +263,7 @@ void Tree<Val, KeyLen>::erase(const char *key)
     m_rootNode = m_rootNode->eraceNode(key);
 }
 
-template<typename Val, uint KeyLen>
+template<typename Val, int KeyLen>
 void Tree<Val, KeyLen>::clear()
 {
     while (m_rootNode != nullptr) {

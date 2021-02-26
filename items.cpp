@@ -117,7 +117,7 @@ Car::Car()
 Car::Car(const char *number,
          const char *brand,
          const char *color,
-         const uint year,
+         const int year,
          bool available)
     : m_number(new char[app_global::car::numberMaxLen])
     , m_brand(new char[app_global::car::brandMaxLen])
@@ -196,12 +196,12 @@ void Car::setColor(const char *color)
     std::strncpy(m_color, color, app_global::car::colorMaxLen);
 }
 
-uint Car::year() const
+int Car::year() const
 {
     return m_year;
 }
 
-void Car::setYear(const uint &year)
+void Car::setYear(const int &year)
 {
     m_year = year;
 }

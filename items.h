@@ -42,7 +42,7 @@ public:
     Car(const char *number,
         const char *brand,
         const char *color,
-        const uint year,
+        const int year,
         bool available = true);
     Car(const Car &other);
     ~Car();
@@ -58,8 +58,8 @@ public:
     const char *color() const;
     void setColor(const char *color);
 
-    uint year() const;
-    void setYear(const uint &year);
+    int year() const;
+    void setYear(const int &year);
 
     bool available() const;
     void setAvailable(bool available);
@@ -68,7 +68,7 @@ private:
     char *m_number;
     char *m_brand;
     char *m_color;
-    uint m_year;
+    int m_year;
     bool m_available;
 };
 

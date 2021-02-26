@@ -139,7 +139,7 @@ public:
         if(!(i < m_size))
             return *m_end->data();
         Node *pNode = m_begin;
-        for(uint j = 0; i != j; ++j)
+        for(int j = 0; i != j; ++j)
             pNode = pNode->next();
         return *pNode->data();
     }
@@ -149,7 +149,7 @@ public:
         if(!(i < m_size))
             return *m_end->data();
         Node *pNode = m_begin;
-        for(uint j = 0; i != j; ++j)
+        for(int j = 0; i != j; ++j)
             pNode = pNode->next();
         return *pNode->data();
     }
