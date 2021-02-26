@@ -54,7 +54,7 @@ public:
     }
     Value& operator*() { return *m_ptr->data(); }
     const Value &operator*() const { return *m_ptr->data(); }
-    Node *operator->() { return m_ptr; }
+    Value *operator->() { return m_ptr->data(); }
     bool operator==(const ListIterator &rightIter) const { return m_ptr == rightIter.m_ptr; }
     bool operator!=(const ListIterator &rightIter) const { return m_ptr != rightIter.m_ptr; }
     bool operator!() const { return m_ptr == nullptr; }
