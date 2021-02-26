@@ -2,8 +2,6 @@
 #define APP_GLOBAL_H
 
 #include <cassert>
-#include <cctype>
-#include <cstring>
 
 namespace app_global {
 

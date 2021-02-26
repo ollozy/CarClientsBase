@@ -1,5 +1,8 @@
 #include "global.h"
 
+#include <cctype>
+#include <cstring>
+
 namespace app_global {
 
 int realStringSize(const char *data, int destLen)
