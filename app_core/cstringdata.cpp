@@ -1,7 +1,8 @@
 #include "cstringdata.h"
 
 #include <cstring>
-#include <sstream>
+#include <cstdio>
+#include <cstdlib>
 
 CStringData::CStringData()
     : m_data(nullptr)
@@ -21,8 +22,7 @@ CStringData::CStringData(int data)
     : m_data(new char[100])
     , m_len(100)
 {
-    std::stringstream stream(m_data);
-    stream << data;
+    std::sprintf(m_data, "%d", data);
 }
 
 CStringData::CStringData(const CStringData &other)
@@ -53,6 +53,11 @@ const CStringData &CStringData::operator=(const CStringData &other)
     return *this;
 }
 
+int CStringData::toInt() const
+{
+    return std::atoi(m_data);
+}
+
 const char *CStringData::data() const
 {
     return m_data;
@@ -79,8 +84,7 @@ void CStringData::setData(int data)
         delete[] m_data;
     m_data = new char[m_len];
 
-    std::stringstream stream(m_data);
-    stream << data;
+    std::sprintf(m_data, "%d", data);
 }
 
 bool CStringData::isEmpty() const

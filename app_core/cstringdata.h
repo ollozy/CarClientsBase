@@ -13,6 +13,8 @@ public:
 
     const CStringData &operator=(const CStringData &other);
 
+    int toInt() const;
+
     const char *data() const;
     int length() const;
 
