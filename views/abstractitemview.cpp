@@ -43,7 +43,6 @@ void AbstractItemView::selectItem(int row, int column)
 
     m_selectedItems.append(selectedIndex);
     m_delegate->setCurrentIndex(selectedIndex);
-    update();
 }
 
 void AbstractItemView::selectRow(int row)
@@ -88,4 +87,9 @@ void AbstractItemView::setModel(AbstractItemModel *model)
 const LinkList<ModelIndex> &AbstractItemView::selectedItems() const
 {
     return m_selectedItems;
+}
+
+void AbstractItemView::clearSelection()
+{
+    m_selectedItems.clear();
 }

@@ -19,7 +19,7 @@ ListView::~ListView()
 
 void ListView::update()
 {
-    int rowCount = model()->rowCount();
+    int rowCount = model()->rowCount() + 1;
 
     bool needBoard = false;
     for(int i = 0; i < rowCount * 2; ++i) {
@@ -28,31 +28,56 @@ void ListView::update()
         else
             needBoard = false;
 
-        ModelIndex index(i, 0);
+        ModelIndex index(i / 2, 0);
         delegate()->setCurrentIndex(index);
-        bool isSelected = selectedItems().contains(index)
-                || selectedItems().contains(ModelIndex(i - 1, 0))
-                || selectedItems().contains(ModelIndex(i + 1, 0));
+        bool selectVertical = selectedItems().contains(index);
+        bool selectHorizontal = selectedItems().contains(index)
+                || selectedItems().contains(ModelIndex(index.row() - 1, 0));
 
         if(needBoard)
-            delegate()->drawHorizontalBoard(isSelected);
+            delegate()->drawHorizontalBoard(selectHorizontal);
         else {
-            delegate()->drawVerticalBorad(isSelected);
+            delegate()->drawVerticalBorad(selectVertical);
             delegate()->drawData();
-            delegate()->drawVerticalBorad(isSelected);
+            delegate()->drawVerticalBorad(selectVertical);
         }
 
         delegate()->drawNextLine();
     }
-    delegate()->drawHorizontalBoard(false);
+    delegate()->drawHorizontalBoard(selectedItems().contains(ModelIndex(rowCount - 1, 0)));
     delegate()->drawNextLine();
-
 }
 
 void ListView::selectItem(int row, int column)
 {
-    if(row == 0 || column == 0)
+    if(row == 0)
         return;
 
+    if(row > model()->rowCount())
+        return;
+
+    clearSelection();
     AbstractItemView::selectItem(row, column);
+}
+
+void ListView::selectNext()
+{
+    if(selectedItems().isEmpty()) {
+        selectItem(1, 0);
+        return;
+    }
+    else if(selectedItems().size() > 1)
+        return;
+    selectItem(selectedItems().begin()->row() + 1, 0);
+}
+
+void ListView::selectPrevious()
+{
+    if(selectedItems().isEmpty()) {
+        selectItem(model()->rowCount(), 0);
+        return;
+    }
+    else if(selectedItems().size() > 1)
+        return;
+    selectItem(selectedItems().begin()->row() - 1, 0);
 }

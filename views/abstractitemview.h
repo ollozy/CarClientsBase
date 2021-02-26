@@ -28,6 +28,7 @@ public:
     void setModel(AbstractItemModel *model);
 
     const LinkList<ModelIndex> &selectedItems() const;
+    void clearSelection();
 
 private:
     AbstractItemModel *m_model;
