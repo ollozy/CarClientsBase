@@ -23,11 +23,9 @@ public:
     virtual int columnCount() const override;
     virtual int rowCount() const override;
     virtual void removeRow(int row) override;
+    virtual void insertRow(int row) override;
 
-    void insertRow(const Car &value);
-
-private:
-    void insertRow(int row) override;
+    void insertRow(const Car &car);
 
 private:
     Hash<Car, app_global::car::numberMaxLen> m_currentStorage;

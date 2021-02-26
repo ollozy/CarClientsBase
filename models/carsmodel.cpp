@@ -65,102 +65,105 @@ CStringData CarsModel::data(const ModelIndex &index) const
         return CStringData();
 
     int realRow = index.row() - 1;
-    if(realRow == 0)
+    if(realRow < 0)
         return headerData(index.column());
 
-    char header[600] = "\0";
-    char n[3] = "\0";
-    char year[100] = "\0";
-    {
-        std::stringstream stream(n);
-        stream << index.row() + 1;
-    }
-    {
-        std::stringstream stream(year);
-        stream << m_showList[index.row()].year();
-    }
+    char data[600] = "\0";
+    CStringData n(index.row());
+    CStringData year(m_showList[realRow].year());
 
-    std::strncat(header, n, 3);
-    for(int i = 0; i < 25 - app_global::numberOfLetters(n); ++i)
-        std::strncat(header, " ", 1);
-    std::strncat(header, " | ", 3);
+    std::strncat(data, n.data(), 3);
+    for(int i = 0; i < 3 - app_global::numberOfLetters(n.data()); ++i)
+        std::strncat(data, " ", 1);
+    std::strncat(data, " | ", 3);
 
-    const char *field = m_showList[index.row()].number();
-    std::strncat(header, field, 100);
+    const char *field = m_showList[realRow].number();
+    std::strncat(data, field, app_global::car::numberMaxLen);
     for(int i = 0; i < 25 - app_global::numberOfLetters(field); ++i)
-        std::strncat(header, " ", 1);
-    std::strncat(header, " | ", 3);
+        std::strncat(data, " ", 1);
+    std::strncat(data, " | ", 3);
 
-    field = m_showList[index.row()].brand();
-    std::strncat(header, field, 100);
+    field = m_showList[realRow].brand();
+    std::strncat(data, field, app_global::car::brandMaxLen);
     for(int i = 0; i < 25 - app_global::numberOfLetters(field); ++i)
-        std::strncat(header, " ", 1);
-    std::strncat(header, " | ", 3);
+        std::strncat(data, " ", 1);
+    std::strncat(data, " | ", 3);
 
-    field = m_showList[index.row()].color();
-    std::strncat(header, field, 100);
+    field = m_showList[realRow].color();
+    std::strncat(data, field, app_global::car::colorMaxLen);
     for(int i = 0; i < 25 - app_global::numberOfLetters(field); ++i)
-        std::strncat(header, " ", 1);
-    std::strncat(header, " | ", 3);
+        std::strncat(data, " ", 1);
+    std::strncat(data, " | ", 3);
 
-    std::strncat(header, year, 100);
-    for(int i = 0; i < 25 - app_global::numberOfLetters(year); ++i)
-        std::strncat(header, " ", 1);
-    std::strncat(header, " | ", 3);
+    std::strncat(data, year.data(), app_global::car::yearMaxLen);
+    for(int i = 0; i < 25 - app_global::numberOfLetters(year.data()); ++i)
+        std::strncat(data, " ", 1);
+    std::strncat(data, " | ", 3);
 
-    if(m_showList[index.row()].available()) {
-        std::strncat(header, "Да", 100);
+    if(m_showList[realRow].available()) {
+        std::strncat(data, "Да", app_global::car::availableMaxLen);
         for(int i = 0; i < 25 - app_global::numberOfLetters("Да"); ++i)
-            std::strncat(header, " ", 1);
+            std::strncat(data, " ", 1);
     }
     else {
-        std::strncat(header, "Нет", 100);
+        std::strncat(data, "Нет", app_global::car::availableMaxLen);
         for(int i = 0; i < 25 - app_global::numberOfLetters("Нет"); ++i)
-            std::strncat(header, " ", 1);
+            std::strncat(data, " ", 1);
     }
-    return CStringData(header, 600);
+    return CStringData(data, 600);
 }
 
 void CarsModel::setData(const CStringData &data, const ModelIndex &index)
 {
-    if(data.isEmpty()
-            || m_showList.size() < index.row()
-            || !index.isValid())
-        return;
+//    if(data.isEmpty()
+//            || m_showList.size() < index.row()
+//            || !index.isValid())
+//        return;
 
-    int realRow = index.row() - 1;
-    if(realRow < 0)
-        return;
+//    int realRow = index.row() - 1;
+//    if(realRow < 0)
+//        return;
 
-    switch (index.column()) {
-    case 1: {
-        Car &editingData = m_showList[realRow];
-        editingData.setNumber(data.data());
-        break;
-    }
-    case 2: {
-        Car &editingData = m_showList[realRow];
-        editingData.setBrand(data.data());
-        break;
-    }
-    case 3: {
-        Car &editingData = m_showList[realRow];
-        editingData.setColor(data.data());
-        break;
-    }
-    case 4: {
-        Car &editingData = m_showList[realRow];
-        editingData.setYear(std::atoi(data.data()));
-        break;
-    }
-    case 5: {
-        Car &editingData = m_showList[realRow];
-        if(std::strncmp(data.data(), "Да", 3))
-            editingData.setAvailable(true);
-        else
-            editingData.setAvailable(false);
-    }
-    }
+//    switch (index.column()) {
+//    case 1: {
+//        Car editingData = m_showList[realRow];
+//        m_currentStorage.erase(editingData.number());
+//        editingData.setNumber(data.data());
+//        m_currentStorage.insert(editingData.number(), editingData);
+//        m_showList = m_currentStorage.values();
+//        break;
+//    }
+//    case 2: {
+//        const char *key = m_showList[realRow].number();
+//        Car &editingData = m_currentStorage[key];
+//        editingData.setBrand(data.data());
+//        m_showList = m_currentStorage.values();
+//        break;
+//    }
+//    case 3: {
+//        const char *key = m_showList[realRow].number();
+//        Car &editingData = m_currentStorage[key];
+//        editingData.setColor(data.data());
+//        m_showList = m_currentStorage.values();
+//        break;
+//    }
+//    case 4: {
+//        const char *key = m_showList[realRow].number();
+//        Car &editingData = m_currentStorage[key];
+//        editingData.setYear(data.toInt());
+//        m_showList = m_currentStorage.values();
+//        break;
+//    }
+//    case 5: {
+//        const char *key = m_showList[realRow].number();
+//        Car &editingData = m_currentStorage[key];
+//        if(std::strncmp(data.data(), "Да", 3))
+//            editingData.setAvailable(true);
+//        else
+//            editingData.setAvailable(false);
+//        m_showList = m_currentStorage.values();
+//    }
+//    }
 }
 
 void CarsModel::insertColumn(int column)
@@ -175,17 +178,22 @@ void CarsModel::removeColumn(int column)
 
 int CarsModel::columnCount() const
 {
-    return 6;
+    return 1;
 }
 
 int CarsModel::rowCount() const
 {
-    return m_showList.size() + 1;
+    return m_showList.size();
 }
 
-void CarsModel::insertRow(const Car &value)
+void CarsModel::insertRow(int row)
 {
-    m_currentStorage.insert(value.number(), value);
+    (void)row;
+}
+
+void CarsModel::insertRow(const Car &car)
+{
+    m_currentStorage.insert(car.number(), car);
     m_showList = m_currentStorage.values();
 }
 
@@ -197,9 +205,4 @@ void CarsModel::removeRow(int row)
     Car &removedVal = m_showList[row];
     m_currentStorage.erase(removedVal.number());
     m_showList = m_currentStorage.values();
-}
-
-void CarsModel::insertRow(int row)
-{
-    (void)row;
 }
