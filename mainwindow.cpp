@@ -9,20 +9,22 @@
 
 MainWindow::MainWindow()
     : m_command(-1)
+    , m_currentModel(NoModel)
     , m_exit(false)
-    , m_showHint(true)
-    , m_showNavigation(true)
-    , m_showStaticInfo(true)
+    , m_showHintPanel(true)
+    , m_showNavigationPanel(false)
+    , m_showMainPanel(true)
+    , m_userInputState(false)
     , m_list(new ListView)
     , m_delegate(new ListDelegate)
     , m_carModel(new CarsModel)
+    , m_proxy(new ProxyModel)
     , m_lastView(nullptr)
 {
     m_list->setDelegate(m_delegate);
-    m_list->setModel(m_carModel);
+    m_list->setModel(m_proxy);
     m_carModel->initHeader();
     m_delegate->setFieldWidth(app_global::numberOfLetters(m_carModel->headerData(0).data()));
-    m_list->selectRow(-1);
 }
 
 MainWindow::~MainWindow()
@@ -30,6 +32,7 @@ MainWindow::~MainWindow()
     delete m_list;
     delete m_delegate;
     delete m_carModel;
+    delete m_proxy;
 }
 
 void MainWindow::open()
@@ -44,7 +47,7 @@ void MainWindow::open()
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             continue;
         }
-        m_exit = switchCommand(m_command);
+        switchCommand(m_command);
     }
 }
 
@@ -55,77 +58,96 @@ void MainWindow::update()
         m_lastView->update();
         std::cout << std::endl;
     }
-    if(m_showHint)
-        showHint();
-    if(m_showNavigation)
-        showNavigation();
-    if(m_showStaticInfo)
-        showStaticInfo();
+    if(m_userInputState)
+        return;
+    if(m_showHintPanel)
+        hintPanel();
+    if(m_showNavigationPanel)
+        navigationPanel();
+    if(m_showMainPanel)
+        mainPanel();
 }
 
-bool MainWindow::switchCommand(const int &command)
+void MainWindow::switchCommand(const int &command)
 {
     switch (command) {
-    case ShowHint:
-        m_showHint = true;
-        return false;
-    case HideHint:
-        m_showHint = false;
-        return false;
-    case ShowAllCars:
-        m_lastView = m_list;
-        return false;
-    case ShowAllClients:
-        return false;
-    case ShowRentInfo:
-        return false;
-    case InsertNewCar:
-        appendCar();
-        return false;
-    case InsertNewClient:
-        return false;
-    case InsertRentInfo:
-        return false;
-    case EraseCar:
-        eraseCar();
-        return false;
-    case EraseClient:
-        return false;
-    case EraseRentInfo:
-        return false;
-    case EnableNavigation:
-        m_showNavigation = true;
-        return false;
-    case DisableNavigation:
-        m_showNavigation = false;
-        return false;
     case Exit:
-        return true;
+        m_exit = true;
+        break;
+
     case NextLine:
         m_list->selectNext();
-        return false;
+        break;
     case PreviousLine:
         m_list->selectPrevious();
-        return false;
+        break;
     case UnselectLine:
         m_list->clearSelection();
-        return false;
+        break;
+    case Filter:
+        filter();
+        break;
+    case ClearFilter:
+        clearFilter();
+        break;
+
+    case ShowHint:
+        m_showHintPanel = true;
+        break;
+    case HideHint:
+        m_showHintPanel = false;
+        break;
+
+    case HideAllInfo:
+        hideAllView();
+        break;
+
+    case ShowAllCars:
+        showView(CarModel);
+        break;
+    case RemoveCar:
+        showView(CarModel);
+        removeCar();
+        break;
+    case AppendCar:
+        showView(CarModel);
+        appendCar();
+        break;
+    case ClearCars:
+        clearCar();
+        break;
+    case FindCar:
+        findCar();
+        break;
+
+        //    case ShowAllClients:
+        //        break;
+        //    case ShowRentInfo:
+        //        break;
+        //    case InsertNewClient:
+        //        break;
+        //    case IssueCar:
+        //        break;
+        //    case EraseClient:
+        //        break;
+        //    case ReturnCar:
+        //        break;
     default:
-        return false;
+        break;
     }
 }
 
-void MainWindow::showStaticInfo()
+void MainWindow::mainPanel()
 {
     std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
     std::cout << std::setw(app_global::realStringSize("Показать комманды ", 61))
               << std::setfill('_') << "\rПоказать комманды " << ' ' << ShowHint << '\n';
     std::cout << std::setw(app_global::realStringSize("Скрыть комманды ", 60))
               << std::setfill('_') << "Скрыть комманды " << ' ' << HideHint << '\n';
-    std::cout << std::setw(app_global::realStringSize("Показать на навигационную панель ", 60))
-              << std::setfill('_') << "Показать на навигационную панель " << ' ' << EnableNavigation << '\n';
-    std::cout << std::setw(app_global::realStringSize("Скрыть навигационную панель ", 60))
-              << std::setfill('_') << "Скрыть навигационную панель " << ' ' << DisableNavigation << '\n';
+    if(m_lastView != nullptr) {
+        std::cout << std::setw(app_global::realStringSize("Скрыть таблицу ", 60))
+                  << std::setfill('_') << "Скрыть таблицу " << ' ' << HideAllInfo << '\n';
+    }
     std::cout << std::setw(app_global::realStringSize("Выход ", 60))
               << std::setfill('_') <<  "Выход " << ' ' << Exit << '\n';
     std::cout.unsetf(std::ios_base::adjustfield);
@@ -133,32 +155,38 @@ void MainWindow::showStaticInfo()
     std::cout << "\ruser:~> ";
 }
 
-void MainWindow::showHint()
+void MainWindow::hintPanel()
 {
     std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
-    std::cout << std::setw(app_global::realStringSize("Вывести на экран все зарегистрированные автомобили ", 61))
-              << std::setfill('_') << "\rВывести на экран все зарегистрированные автомобили " << ' ' << ShowAllCars << '\n';
+    std::cout << std::setw(app_global::realStringSize("Показать все имеющиеся автомобили ", 61))
+              << std::setfill('_') << "\rПоказать все имеющиеся автомобили " << ' ' << ShowAllCars << '\n';
     std::cout << std::setw(app_global::realStringSize("Добавить новый автомобиль ", 60))
-              << std::setfill('_') << "Добавить новый автомобиль " << ' ' << InsertNewCar << '\n';
-    std::cout << std::setw(app_global::realStringSize("Удалить автомобиль ", 60))
-              << std::setfill('_') << "Удалить автомобиль " << ' ' << EraseCar << '\n';
-    std::cout << std::setw(app_global::realStringSize("Вывести на экран всех клиентов ", 60))
-              << std::setfill('_') << "Вывести на экран всех клиентов " << ' ' << ShowAllClients << '\n';
-    std::cout << std::setw(app_global::realStringSize("Добавить нового клиента ", 60))
-              << std::setfill('_') << "Добавить нового клиента " << ' ' << InsertNewClient << '\n';
-    std::cout << std::setw(app_global::realStringSize("Удалить клиента ", 60))
-              << std::setfill('_') << "Удалить клиента " << ' ' << EraseClient << '\n';
-    std::cout << std::setw(app_global::realStringSize("Вывести на экран данные об аренде ", 60))
-              << std::setfill('_') << "Вывести на экран данные об аренде " << ' ' << ShowRentInfo << '\n';
-    std::cout << std::setw(app_global::realStringSize("Добавить данные об аренде ", 60))
-              << std::setfill('_') << "Добавить данные об аренде " << ' ' << InsertRentInfo << '\n';
-    std::cout << std::setw(app_global::realStringSize("Удалить данные об аренде ", 60))
-              << std::setfill('_') << "Удалить данные об аренде " << ' ' << EraseRentInfo << '\n';
+              << std::setfill('_') << "Добавить новый автомобиль " << ' ' << AppendCar << '\n';
+    std::cout << std::setw(app_global::realStringSize("Удалить сведения об автомобиле ", 60))
+              << std::setfill('_') << "Удалить сведения об автомобиле " << ' ' << RemoveCar << '\n';
+    std::cout << std::setw(app_global::realStringSize("Очистить данные об автомобилях ", 60))
+              << std::setfill('_') << "Очистить данные об автомобилях " << ' ' << ClearCars << '\n';
+    std::cout << std::setw(app_global::realStringSize("Найти автомобить по гос. номеру ", 60))
+              << std::setfill('_') << "Найти автомобить по гос. номеру " << ' ' << FindCar << '\n';
+
+    //    std::cout << std::setw(app_global::realStringSize("Вывести на экран всех клиентов ", 60))
+    //              << std::setfill('_') << "Показать всех зарегистрированных клиентов " << ' ' << ShowAllClients << '\n';
+    //    std::cout << std::setw(app_global::realStringSize("Добавить нового клиента ", 60))
+    //              << std::setfill('_') << "Зарегистрировать нового клиента " << ' ' << InsertNewClient << '\n';
+    //    std::cout << std::setw(app_global::realStringSize("Удалить клиента ", 60))
+    //              << std::setfill('_') << "Снять клиента с обслуживания " << ' ' << EraseClient << '\n';
+
+    //    std::cout << std::setw(app_global::realStringSize("Вывести на экран данные об аренде ", 60))
+    //              << std::setfill('_') << "Вывести на экран данные об аренде " << ' ' << ShowRentInfo << '\n';
+    //    std::cout << std::setw(app_global::realStringSize("Добавить данные об аренде ", 60))
+    //              << std::setfill('_') << "Добавить данные об аренде " << ' ' << IssueCar << '\n';
+    //    std::cout << std::setw(app_global::realStringSize("Удалить данные об аренде ", 60))
+    //              << std::setfill('_') << "Удалить данные об аренде " << ' ' << ReturnCar << '\n';
     std::cout.unsetf(std::ios_base::adjustfield);
     std::cout << std::endl;
 }
 
-void MainWindow::showNavigation()
+void MainWindow::navigationPanel()
 {
     std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
     std::cout << std::setw(app_global::realStringSize("Предыдущая строка ", 60))
@@ -167,19 +195,58 @@ void MainWindow::showNavigation()
               << std::setfill('_') << "\rСледующая строка " << ' ' << NextLine << '\n';
     std::cout << std::setw(app_global::realStringSize("Снять выделение ", 60))
               << std::setfill('_') << "Снять выделение " << ' ' << UnselectLine << '\n';
+    std::cout << std::setw(app_global::realStringSize("Фильтровать ", 60))
+              << std::setfill('_') << "Фильтровать " << ' ' << Filter << '\n';
+    std::cout << std::setw(app_global::realStringSize("Очистить фильтр ", 60))
+              << std::setfill('_') << "Очистить фильтр " << ' ' << ClearFilter << '\n';
     std::cout.unsetf(std::ios_base::adjustfield);
     std::cout << std::endl;
 }
 
+void MainWindow::showView(ModelType type)
+{
+    m_currentModel = type;
+    switch(type)  {
+    case NoModel:
+        m_lastView = nullptr;
+        m_proxy->setModel(nullptr);
+        m_showNavigationPanel = false;
+        break;
+    case CarModel:
+        m_lastView = m_list;
+        if(m_proxy->model() != m_carModel){
+            m_proxy->setModel(m_carModel);
+            m_proxy->setFilterColumn(2);
+        }
+        m_showNavigationPanel = true;
+        break;
+    case ClientModel:
+        m_lastView = nullptr;
+        m_proxy->setModel(nullptr);
+        m_showNavigationPanel = false;
+        break;
+    case RentInfoModel:
+        m_lastView = nullptr;
+        m_proxy->setModel(nullptr);
+        m_showNavigationPanel = false;
+        break;
+    default:
+        m_lastView = nullptr;
+        m_proxy->setModel(nullptr);
+        m_showNavigationPanel = false;
+        break;
+    }
+}
+
+void MainWindow::hideAllView()
+{
+    m_lastView = nullptr;
+    m_showNavigationPanel = false;
+}
+
 void MainWindow::appendCar()
 {
-    bool hintStorage = m_showHint;
-    bool navigationStorage = m_showNavigation;
-    bool staticInfoStorage = m_showStaticInfo;
-
-    m_showHint = false;
-    m_showNavigation = false;
-    m_showStaticInfo = false;
+    m_userInputState = true;
 
     m_lastView = m_list;
     update();
@@ -197,13 +264,19 @@ void MainWindow::appendCar()
     std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
     std::cout << std::setw(app_global::realStringSize("Номер автомобиля: ", 30))
               << std::setfill('_') << "Номер автомобиля: " << " ";
-    std::cin.getline(numb, app_global::car::numberMaxLen);
+    std::cin.getline(numb, app_global::car::numberMaxLen, '\n');
+    if(!(app_global::numberOfLetters(numb) > 0)) {
+        std::cout << "\nНекорректный гос номер. Enter для продолжения\n";
+        while(std::cin.peek() != '\n') std::cin.get();
+        m_userInputState = false;
+        return;
+    }
     std::cout << std::setw(app_global::realStringSize("Марка автомобиля: ", 30))
               << std::setfill('_') << "Марка автомобиля: " << " ";
-    std::cin.getline(brand, app_global::car::brandMaxLen);
+    std::cin.getline(brand, app_global::car::brandMaxLen, '\n');
     std::cout << std::setw(app_global::realStringSize("Цвет автомобиля: ", 30))
               << std::setfill('_') << "Цвет автомобиля: " << " ";
-    std::cin.getline(color, app_global::car::colorMaxLen);
+    std::cin.getline(color, app_global::car::colorMaxLen, '\n');
     std::cout << std::setw(app_global::realStringSize("Год выпуска автомобиля: ", 30))
               << std::setfill('_') << "Год выпуска автомобиля: " << " ";
     std::cin >> year;
@@ -215,43 +288,63 @@ void MainWindow::appendCar()
         if(year == 0)
             break;
     }
+
     std::cout.unsetf(std::ios_base::adjustfield);
 
     Car newCar(numb, brand, color, year);
     m_carModel->insertRow(newCar);
 
-    m_showHint = hintStorage;
-    m_showNavigation = navigationStorage;
-    m_showStaticInfo = staticInfoStorage;
+    m_userInputState = false;
 }
 
-void MainWindow::eraseCar()
+void MainWindow::removeCar()
 {
     if(!m_list->selectedItems().isEmpty()) {
         int rowForDel = m_list->selectedItems().begin()->row();
         m_carModel->removeRow(rowForDel - 1);
         int selectedRow = m_list->selectedItems().begin()->row();
-        if(m_carModel->rowCount() == 0 || selectedRow > m_carModel->rowCount())
+        if(selectedRow > m_carModel->rowCount() - 1)
             m_list->clearSelection();
     }
 }
 
-void MainWindow::appendClient()
+void MainWindow::clearCar()
 {
+    m_proxy->clearModel();
+    m_list->clearSelection();
+}
+
+void MainWindow::findCar()
+{
+    char numb[app_global::car::numberMaxLen];
+    std::cout << "Введите гос. номер автомобиля для поиска: ";
+    std::cin.getline(numb, app_global::car::numberMaxLen, '\n');
+    if(!(app_global::numberOfLetters(numb) > 0)) {
+        std::cout << "\nНекорректный гос номер. Enter для продолжения\n";
+        while(std::cin.peek() != '\n') std::cin.get();
+        m_userInputState = false;
+        return;
+    }
+
 
 }
 
-void MainWindow::eraseClient()
+void MainWindow::filter()
 {
+    char keyWord[100] = "\0";
 
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    std::cout << "Введите слово для фильтра: ";
+    std::cin.getline(keyWord, 100);
+
+    m_proxy->setFilter(keyWord);
 }
 
-void MainWindow::appendRentInfo()
+void MainWindow::clearFilter()
 {
-
-}
-
-void MainWindow::eraseRentInfo()
-{
-
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    m_proxy->setFilter("\0");
 }

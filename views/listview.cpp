@@ -19,7 +19,8 @@ ListView::~ListView()
 
 void ListView::update()
 {
-    int rowCount = model()->rowCount() + 1;
+    int rowCount = model()->rowCount();
+    int columtCount = model()->columnCount();
 
     bool needBoard = false;
     for(int i = 0; i < rowCount * 2; ++i) {
@@ -29,7 +30,6 @@ void ListView::update()
             needBoard = false;
 
         ModelIndex index(i / 2, 0);
-        delegate()->setCurrentIndex(index);
         bool selectVertical = selectedItems().contains(index);
         bool selectHorizontal = selectedItems().contains(index)
                 || selectedItems().contains(ModelIndex(index.row() - 1, 0));
@@ -38,10 +38,19 @@ void ListView::update()
             delegate()->drawHorizontalBoard(selectHorizontal);
         else {
             delegate()->drawVerticalBorad(selectVertical);
-            delegate()->drawData();
-            delegate()->drawVerticalBorad(selectVertical);
+            if(index.row() == 0) {
+                delegate()->setCurrentIndex(index);
+                delegate()->drawData();
+                delegate()->drawVerticalBorad(selectVertical);
+            }
+            else {
+                for(int j = 0; j < columtCount; ++j) {
+                    delegate()->setCurrentIndex(ModelIndex(index.row(), j));
+                    delegate()->drawData();
+                    delegate()->drawVerticalBorad(selectVertical);
+                }
+            }
         }
-
         delegate()->drawNextLine();
     }
     delegate()->drawHorizontalBoard(selectedItems().contains(ModelIndex(rowCount - 1, 0)));
@@ -53,7 +62,7 @@ void ListView::selectItem(int row, int column)
     if(row == 0)
         return;
 
-    if(row > model()->rowCount())
+    if(!(row < model()->rowCount()))
         return;
 
     clearSelection();
@@ -74,7 +83,7 @@ void ListView::selectNext()
 void ListView::selectPrevious()
 {
     if(selectedItems().isEmpty()) {
-        selectItem(model()->rowCount(), 0);
+        selectItem(model()->rowCount() - 1, 0);
         return;
     }
     else if(selectedItems().size() > 1)

@@ -61,7 +61,7 @@ CStringData CarsModel::data(const ModelIndex &index) const
             || !index.isValid())
         return CStringData();
 
-    if(index.column() != 0)
+    if(index.column() > columnCount())
         return CStringData();
 
     int realRow = index.row() - 1;
@@ -69,57 +69,21 @@ CStringData CarsModel::data(const ModelIndex &index) const
         return headerData(index.column());
 
     switch (index.column()) {
-    case 0: {
-        CStringData n(index.row());
-        char nPresentation[100];
-
-        std::strncat(nPresentation, n.data(), 3);
-        for(int i = 0; i < 3 - app_global::numberOfLetters(n.data()); ++i)
-            std::strncat(nPresentation, " ", 1);
-        return CStringData(nPresentation, 100);
-    }
-    case 1: {
-        const char *number = m_showList[realRow].number();
-        char numberPresentation[100];
-        std::strncat(numberPresentation, number, app_global::car::numberMaxLen);
-        for(int i = 0; i < 25 - app_global::numberOfLetters(number); ++i)
-            std::strncat(numberPresentation, " ", 1);
-        return CStringData(number, app_global::car::numberMaxLen);
-    }
-    case 2:{
-        const char *brand = m_showList[realRow].brand();
-        char brandPresentation[100];
-        std::strncat(brandPresentation, brand, app_global::car::brandMaxLen);
-        for(int i = 0; i < 25 - app_global::numberOfLetters(brand); ++i)
-            std::strncat(brandPresentation, " ", 1);
-    }
-    case 3: {
-        const char *color = m_showList[realRow].color();
-        char colorPresentation[100];
-        std::strncat(colorPresentation, color, app_global::car::colorMaxLen);
-        for(int i = 0; i < 25 - app_global::numberOfLetters(color); ++i)
-            std::strncat(colorPresentation, " ", 1);
-    }
-    case 4: {
-        CStringData year(m_showList[realRow].year());
-        char yearPresentation[100];
-
-        std::strncat(yearPresentation, year.data(), app_global::car::yearMaxLen);
-        for(int i = 0; i < 25 - app_global::numberOfLetters(year.data()); ++i)
-            std::strncat(yearPresentation, " ", 1);
-    }
+    case 0:
+        return CStringData(index.row());
+    case 1:
+        return CStringData(m_showList[realRow].number(), app_global::car::numberMaxLen);
+    case 2:
+        return CStringData(m_showList[realRow].brand(), app_global::car::brandMaxLen);
+    case 3:
+        return CStringData(m_showList[realRow].color(), app_global::car::colorMaxLen);
+    case 4:
+        return CStringData(m_showList[realRow].year());
     case 5: {
-        char availablePresentation[100];
-        if(m_showList[realRow].available()) {
-            std::strncat(availablePresentation, "Да", app_global::car::availableMaxLen);
-            for(int i = 0; i < 25 - app_global::numberOfLetters("Да"); ++i)
-                std::strncat(availablePresentation, " ", 1);
-        }
-        else {
-            std::strncat(availablePresentation, "Нет", app_global::car::availableMaxLen);
-            for(int i = 0; i < 25 - app_global::numberOfLetters("Нет"); ++i)
-                std::strncat(availablePresentation, " ", 1);
-        }
+        if(m_showList[realRow].available())
+            return CStringData("Да", app_global::car::availableMaxLen);
+        else
+            return CStringData("Нет", app_global::car::availableMaxLen);
     }
     default:
         return CStringData();
@@ -129,6 +93,8 @@ CStringData CarsModel::data(const ModelIndex &index) const
 
 void CarsModel::setData(const CStringData &data, const ModelIndex &index)
 {
+    (void)data;
+    (void)index;
     //    if(data.isEmpty()
     //            || m_showList.size() < index.row()
     //            || !index.isValid())
@@ -192,12 +158,12 @@ void CarsModel::removeColumn(int column)
 
 int CarsModel::columnCount() const
 {
-    return 1;
+    return 6;
 }
 
 int CarsModel::rowCount() const
 {
-    return m_showList.size();
+    return m_showList.size() + 1;
 }
 
 void CarsModel::insertRow(int row)

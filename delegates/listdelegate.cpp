@@ -40,7 +40,24 @@ void ListDelegate::drawVerticalBorad(bool selected)
 
 void ListDelegate::drawData()
 {
-    std::cout << model()->data(currentIndex()).data();
+    if(currentIndex().row() == 0) {
+        std::cout << model()->data(currentIndex()).data();
+        return;
+    }
+
+    CStringData data = model()->data(currentIndex());
+    char dataPresentation[100] = "\0";
+    if(currentIndex().column() == 0) {
+        std::strncat(dataPresentation, data.data(), 3);
+        for(int i = 0; i < 3 - app_global::numberOfLetters(data.data()); ++i)
+            std::strncat(dataPresentation, " ", 1);
+    }
+    else {
+        std::strncat(dataPresentation, data.data(), app_global::car::colorMaxLen);
+        for(int i = 0; i < 25 - app_global::numberOfLetters(data.data()); ++i)
+            std::strncat(dataPresentation, " ", 1);
+    }
+    std::cout << dataPresentation;
 }
 
 void ListDelegate::drawNextLine()

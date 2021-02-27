@@ -5,10 +5,10 @@
 #include <cstdlib>
 
 CStringData::CStringData()
-    : m_data(nullptr)
-    , m_len(-1)
+    : m_data(new char[100])
+    , m_len(0)
 {
-
+    m_data[0] = '\0';
 }
 
 CStringData::CStringData(const char *data, int len)

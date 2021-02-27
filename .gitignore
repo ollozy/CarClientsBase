@@ -28,3 +28,5 @@ LinkList.h.autosave
 build-5.14.2/testFile.txt
 
 build-5.11.0/app/
+
+*.autosave

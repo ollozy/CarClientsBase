@@ -7,6 +7,7 @@ SOURCES += \
     $$PWD/models/abstractitemmodel.cpp \
     $$PWD/models/carsmodel.cpp \
     $$PWD/models/clientsmodel.cpp \
+    $$PWD/models/proxymodel.cpp \
     $$PWD/models/rentinfomodel.cpp \
     $$PWD/views/abstractitemview.cpp \
     $$PWD/items.cpp \
@@ -25,6 +26,7 @@ HEADERS += \
     $$PWD/models/abstractitemmodel.h \
     $$PWD/models/carsmodel.h \
     $$PWD/models/clientsmodel.h \
+    $$PWD/models/proxymodel.h \
     $$PWD/models/rentinfomodel.h \
     $$PWD/views/abstractitemview.h \
     $$PWD/items.h \
