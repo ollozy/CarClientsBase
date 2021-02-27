@@ -24,18 +24,21 @@ public:
     AbstractItemModel *model() const;
 
     void setFilter(const char *filterWord);
+    void clearFilter();
     void setFilterColumn(int column);
 
 private:
-    bool filter(const char *data) const;
-    ModelIndex mapToCurrentModelIndex(const ModelIndex &proxyIndex);
+    void filter() const;
+    void initProxy() const;
+    ModelIndex mapToSource(const ModelIndex &proxyIndex) const;
+    ModelIndex mapToProxy(const ModelIndex &index) const;
 
 private:
     AbstractItemModel *m_currentModel;
 
     mutable LinkList<ModelIndex> m_showedIndexes;
 
-    int m_sortColumn;
+    int m_filterColumn;
     char m_filterWord[100];
 };
 

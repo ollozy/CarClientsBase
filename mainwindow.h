@@ -1,12 +1,14 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "./views/listview.h"
-
-#include "./models/carsmodel.h"
-#include "./models/proxymodel.h"
-
-#include "./delegates/listdelegate.h"
+class AbstractItemModel;
+class AbstractItemView;
+class ListDelegate;
+class ListView;
+class ProxyModel;
+class CarsModel;
+class RentInfoModel;
+class ClientsModel;
 
 class MainWindow
 {
@@ -16,8 +18,12 @@ class MainWindow
         PreviousLine,
         NextLine,
         UnselectLine,
+
         Filter,
         ClearFilter,
+
+        RemoveLine,
+        ClearAll,
 
         ShowHint,
         HideHint,
@@ -26,14 +32,10 @@ class MainWindow
 
         ShowAllCars,
         AppendCar,
-        RemoveCar,
-        ClearCars,
         FindCar,
 
         ShowAllClients,
-        InsertNewClient,
-        EraseClient,
-        ClearClients,
+        AppendClient,
         FindClient,
 
         ShowRentInfo,
@@ -50,7 +52,7 @@ class MainWindow
         NoModel,
         CarModel,
         ClientModel,
-        RentInfoModel
+        RentModel
     };
 
 public:
@@ -67,15 +69,19 @@ private:
     void navigationPanel();
 
     void showView(ModelType type);
-    void hideAllView();
 
     void appendCar();
-    void removeCar();
-    void clearCar();
     void findCar();
+
+    void appendClient();
+    void findClient();
 
     void filter();
     void clearFilter();
+    void removeRow();
+    void clear();
+
+    AbstractItemModel *modelByType(ModelType type);
 
 private:
     int m_command;
@@ -83,15 +89,16 @@ private:
 
     bool m_exit;
     bool m_showHintPanel;
-    bool m_showNavigationPanel;
-    bool m_showMainPanel;
     bool m_userInputState;
+
+    CarsModel *m_carModel;
+    ClientsModel *m_clientsModel;
+    RentInfoModel *m_rentInfoModel;
 
     ListView *m_list;
     ListDelegate *m_delegate;
-    CarsModel *m_carModel;
-
     ProxyModel *m_proxy;
+
     AbstractItemView *m_lastView;
 };
 

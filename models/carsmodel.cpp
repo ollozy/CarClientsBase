@@ -185,10 +185,10 @@ void CarsModel::clearModel()
 
 void CarsModel::removeRow(int row)
 {
-    if(m_showList.size() < row)
+    if(row > m_showList.size())
         return;
 
-    Car &removedVal = m_showList[row];
+    Car &removedVal = m_showList[row - 1];
     m_currentStorage.erase(removedVal.number());
     m_showList = m_currentStorage.values();
 }

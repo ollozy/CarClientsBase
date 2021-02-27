@@ -7,7 +7,7 @@
 ProxyModel::ProxyModel()
     : m_currentModel(nullptr)
     , m_showedIndexes()
-    , m_sortColumn(-1)
+    , m_filterColumn(-1)
     , m_filterWord("\0")
 {
 
@@ -15,63 +15,82 @@ ProxyModel::ProxyModel()
 
 CStringData ProxyModel::data(const ModelIndex &index) const
 {
-    if(index.row() == 0) {
-        m_showedIndexes.clear();
-        return m_currentModel->data(index);
-    }
+    if(!m_currentModel)
+        return CStringData();
 
-    for(int i = index.row(); i < m_currentModel->rowCount(); ++i) {
-        ModelIndex mappedIndex(i, m_sortColumn);
-        if(m_showedIndexes.contains(ModelIndex(i, index.column())))
-            continue;
-        CStringData data = m_currentModel->data(mappedIndex);
-        if(filter(data.data())) {
-            ModelIndex showedIndex(i, index.column());
-            m_showedIndexes.append(showedIndex);
-            return m_currentModel->data(showedIndex);
-        }
-    }
+    filter();
+    ModelIndex proxyIndex = mapToSource(index);
+    if(!proxyIndex.isValid())
+        return CStringData();
 
-    return CStringData();
+    return m_currentModel->data(proxyIndex);
 }
 
 void ProxyModel::setData(const CStringData &data, const ModelIndex &index)
 {
+    if(!m_currentModel)
+        return;
+
     m_currentModel->setData(data, index);
 }
 
 void ProxyModel::clearModel()
 {
+    if(!m_currentModel)
+        return;
+
     m_currentModel->clearModel();
 }
 
 void ProxyModel::insertColumn(int column)
 {
+    if(!m_currentModel)
+        return;
+
     m_currentModel->insertColumn(column);
 }
 
 void ProxyModel::removeColumn(int column)
 {
+    if(!m_currentModel)
+        return;
+
     m_currentModel->removeColumn(column);
 }
 
 int ProxyModel::columnCount() const
 {
+    if(!m_currentModel)
+        return -1;
+
     return m_currentModel->columnCount();
 }
 
 void ProxyModel::insertRow(int row)
 {
+    if(!m_currentModel)
+        return;
+
     m_currentModel->insertRow(row);
 }
 
 void ProxyModel::removeRow(int row)
 {
-    m_currentModel->removeRow(row);
+    if(!m_currentModel)
+        return;
+
+    ModelIndex sourceIndex = mapToSource(ModelIndex(row, 0));
+    if(!sourceIndex.isValid())
+        return;
+
+    m_currentModel->removeRow(sourceIndex.row());
 }
 
 int ProxyModel::rowCount() const
 {
+    if(!m_currentModel)
+        return -1;
+
     return m_currentModel->rowCount();
 }
 
@@ -80,10 +99,8 @@ void ProxyModel::setModel(AbstractItemModel *model)
     if(m_currentModel == model)
         return;
 
-    m_showedIndexes.clear();
-    std::strncpy(m_filterWord, "\0", 1);
-
     m_currentModel = model;
+    clearFilter();
 }
 
 AbstractItemModel *ProxyModel::model() const
@@ -94,23 +111,95 @@ AbstractItemModel *ProxyModel::model() const
 void ProxyModel::setFilter(const char *filterWord)
 {
     std::strncpy(m_filterWord, filterWord, 100);
+    filter();
+}
+
+void ProxyModel::clearFilter()
+{
+    setFilter("\0");
 }
 
 void ProxyModel::setFilterColumn(int column)
 {
-    if(m_sortColumn == column)
+    if(m_filterColumn == column)
         return;
-    m_sortColumn = column;
+    m_filterColumn = column;
 }
 
-bool ProxyModel::filter(const char* data) const
+void ProxyModel::filter() const
 {
+    if(!m_currentModel)
+        return;
+
+    initProxy();
+
     if(std::strncmp(m_filterWord, "\0", 1) == 0
-            || m_sortColumn == -1)
-        return true;
+            || m_filterColumn == -1)
+        return;
 
-    if(std::strncmp(data, m_filterWord, 100) == 0)
-        return true;
+    int row = 0;
+    for(LinkList<ModelIndex>::iterator iter = m_showedIndexes.begin();
+        row < m_currentModel->rowCount() && iter != m_showedIndexes.end(); ++row) {
+        ModelIndex filterIndex(row, m_filterColumn);
+        for(int col = 0; col < m_currentModel->columnCount() && iter != m_showedIndexes.end(); ++col) {
+            if(std::strncmp(m_currentModel->data(filterIndex).data(), m_filterWord, 100) != 0) {
+                if(row == 0) {
+                    ++iter;
+                    continue;
+                }
+                iter = m_showedIndexes.erase(iter);
+            }
+            else
+                ++iter;
+        }
 
-    return false;
+    }
+}
+
+void ProxyModel::initProxy() const
+{
+    if(!m_currentModel)
+        return;
+
+    m_showedIndexes.clear();
+    for(int i = 0; i < m_currentModel->rowCount(); ++i)
+        for(int j = 0; j < m_currentModel->columnCount(); ++j) {
+            ModelIndex index(i, j);
+            m_showedIndexes.append(index);
+        }
+}
+
+ModelIndex ProxyModel::mapToSource(const ModelIndex &proxyIndex) const
+{
+    if(!m_currentModel)
+        return ModelIndex();
+
+    int row = 0;
+    for(LinkList<ModelIndex>::iterator iter = m_showedIndexes.begin();
+        row < m_currentModel->rowCount() && iter != m_showedIndexes.end(); ++row) {
+        for(int col = 0; col < m_currentModel->columnCount() && iter != m_showedIndexes.end(); ++col) {
+            ModelIndex index(row, col);
+            if(index == proxyIndex)
+                return *iter;
+            else ++iter;
+        }
+    }
+    return ModelIndex();
+}
+
+ModelIndex ProxyModel::mapToProxy(const ModelIndex &index) const
+{
+    if(!m_currentModel)
+        return ModelIndex();
+
+    int row = 0;
+    for(LinkList<ModelIndex>::iterator iter = m_showedIndexes.begin();
+        row < m_currentModel->rowCount() && iter != m_showedIndexes.end(); ++row) {
+        for(int col = 0; col < m_currentModel->columnCount() && iter != m_showedIndexes.end(); ++col) {
+            ModelIndex ind = index;
+            if(ind == *iter)
+                return ModelIndex(row, col);
+        }
+    }
+    return ModelIndex();
 }

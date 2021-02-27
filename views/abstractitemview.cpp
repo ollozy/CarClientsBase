@@ -42,7 +42,6 @@ void AbstractItemView::selectItem(int row, int column)
         return;
 
     m_selectedItems.append(selectedIndex);
-    m_delegate->setCurrentIndex(selectedIndex);
 }
 
 void AbstractItemView::selectRow(int row)
