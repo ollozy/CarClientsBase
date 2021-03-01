@@ -300,8 +300,11 @@ void MainWindow::appendCar()
 }
 
 void MainWindow::findCar()
-{
-
+{    
+    char key[app_global::car::numberMaxLen] = "\0";
+    std::cout << "Введите номер автомобиля для поиска: ";
+    std::cin.getline(key, app_global::client::licenseLen, '\n');
+    m_carModel->getByKey(key);
 }
 
 void MainWindow::appendClient()
@@ -354,7 +357,10 @@ void MainWindow::appendClient()
 
 void MainWindow::findClient()
 {
-
+    char key[app_global::client::licenseLen] = "\0";
+    std::cout << "Введите номер водительского удостоверения для поиска: ";
+    std::cin.getline(key, app_global::client::licenseLen, '\n');
+    m_clientsModel->getByKey(key);
 }
 
 void MainWindow::filter()

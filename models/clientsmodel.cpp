@@ -166,6 +166,11 @@ void ClientsModel::insertRow(const Client &client)
     m_showList = m_currentStorage.values();
 }
 
+Client &ClientsModel::getByKey(const char *key)
+{
+    return m_currentStorage[key];
+}
+
 void ClientsModel::clearModel()
 {
     m_currentStorage.clear();
