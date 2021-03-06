@@ -177,9 +177,11 @@ void CarsModel::insertRow(const Car &car)
     m_showList = m_currentStorage.values();
 }
 
-Car &CarsModel::getByKey(const char *key)
+Car CarsModel::getByKey(const char *key)
 {
-    return m_currentStorage[key];
+    if(m_currentStorage.hasKey(key))
+        return m_currentStorage[key];
+    return Car();
 }
 
 void CarsModel::clearModel()

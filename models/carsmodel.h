@@ -31,7 +31,7 @@ public:
 
     void insertRow(const Car &car);
 
-    Car &getByKey(const char *key);
+    Car getByKey(const char *key);
 
 private:
     Hash<Car, app_global::car::numberMaxLen> m_currentStorage;

@@ -31,7 +31,7 @@ public:
 
     void insertRow(const Client &car);
 
-    Client &getByKey(const char *key);
+    Client getByKey(const char *key);
 
 private:
     Tree<Client, app_global::client::licenseLen> m_currentStorage;

@@ -72,17 +72,17 @@ private:
     bool m_available;
 };
 
-class RentedCar
+class RentInfo
 {
 public:
-    RentedCar();
-    RentedCar(const char *clientData,
+    RentInfo();
+    RentInfo(const char *clientData,
               const char *carData,
               const char *issueDate);
-    RentedCar(const RentedCar &other);
-    ~RentedCar();
+    RentInfo(const RentInfo &other);
+    ~RentInfo();
 
-    const RentedCar &operator=(const RentedCar &other);
+    const RentInfo &operator=(const RentInfo &other);
 
     const char *clientData() const;
     void setClientData(const char *clientData);

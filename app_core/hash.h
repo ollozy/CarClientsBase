@@ -2,6 +2,7 @@
 #define HASH_H
 
 #include <cstring>
+#include <cmath>
 
 #include "global.h"
 #include "linklist.h"
@@ -240,7 +241,7 @@ int Hash<Val, KeyLen>::hashFunction(const char *key) const
     for(int i = 0; i < KeyLen; ++i) {
         seg += helper.n;
     }
-    return ((seg - minHashFunc) * m_multiCoef) % m_capacity;
+    return std::abs(((seg - minHashFunc) * m_multiCoef) % m_capacity);
 }
 
 template<typename Val, int KeyLen>

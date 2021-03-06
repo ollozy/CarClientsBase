@@ -216,7 +216,7 @@ void Car::setAvailable(bool available)
     m_available = available;
 }
 
-RentedCar::RentedCar()
+RentInfo::RentInfo()
     : m_clientData(new char[app_global::client::licenseLen])
     , m_carData(new char[app_global::car::numberMaxLen])
     , m_returnDate(new char[app_global::dateLen])
@@ -228,7 +228,7 @@ RentedCar::RentedCar()
     m_issueDate[0] = '\0';
 }
 
-RentedCar::RentedCar(const char *clientData,
+RentInfo::RentInfo(const char *clientData,
                      const char *carData,
                      const char *issueDate)
     : m_clientData(new char[app_global::client::licenseLen])
@@ -242,7 +242,7 @@ RentedCar::RentedCar(const char *clientData,
     m_returnDate[0] = '\0';
 }
 
-RentedCar::RentedCar(const RentedCar &other)
+RentInfo::RentInfo(const RentInfo &other)
     : m_clientData(new char[app_global::client::licenseLen])
     , m_carData(new char[app_global::car::numberMaxLen])
     , m_returnDate(new char[app_global::dateLen])
@@ -254,7 +254,7 @@ RentedCar::RentedCar(const RentedCar &other)
     std::strncpy(m_returnDate, other.m_returnDate, app_global::dateLen);
 }
 
-RentedCar::~RentedCar()
+RentInfo::~RentInfo()
 {
     delete[] m_clientData;
     delete[] m_carData;
@@ -262,7 +262,7 @@ RentedCar::~RentedCar()
     delete[] m_returnDate;
 }
 
-const RentedCar &RentedCar::operator=(const RentedCar &other)
+const RentInfo &RentInfo::operator=(const RentInfo &other)
 {
     if(this == &other)
         return *this;
@@ -275,42 +275,42 @@ const RentedCar &RentedCar::operator=(const RentedCar &other)
     return *this;
 }
 
-const char *RentedCar::clientData() const
+const char *RentInfo::clientData() const
 {
     return m_clientData;
 }
 
-void RentedCar::setClientData(const char *clientData)
+void RentInfo::setClientData(const char *clientData)
 {
     std::strncpy(m_clientData, clientData, app_global::client::licenseLen);
 }
 
-const char *RentedCar::carData() const
+const char *RentInfo::carData() const
 {
     return m_carData;
 }
 
-void RentedCar::setCarData(const char *carData)
+void RentInfo::setCarData(const char *carData)
 {
     std::strncpy(m_carData, carData, app_global::car::numberMaxLen);
 }
 
-const char *RentedCar::returnDate() const
+const char *RentInfo::returnDate() const
 {
     return m_returnDate;
 }
 
-void RentedCar::setReturnDate(const char *returnDate)
+void RentInfo::setReturnDate(const char *returnDate)
 {
     std::strncpy(m_returnDate, returnDate, app_global::dateLen);
 }
 
-const char *RentedCar::issueDate() const
+const char *RentInfo::issueDate() const
 {
     return m_issueDate;
 }
 
-void RentedCar::setIssueDate(const char *issueDate)
+void RentInfo::setIssueDate(const char *issueDate)
 {
     std::strncpy(m_issueDate, issueDate, app_global::dateLen);
 }

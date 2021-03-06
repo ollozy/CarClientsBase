@@ -81,6 +81,9 @@ private:
     void removeRow();
     void clear();
 
+    bool checkCarNumber(const char *key) const;
+    bool checkClientLicense(const char *key) const;
+
     AbstractItemModel *modelByType(ModelType type);
 
 private:
