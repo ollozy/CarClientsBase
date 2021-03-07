@@ -80,69 +80,15 @@ CStringData ClientsModel::data(const ModelIndex &index) const
     return CStringData();
 }
 
-void ClientsModel::setData(const CStringData &data, const ModelIndex &index)
+void ClientsModel::setData(const CStringData &, const ModelIndex &)
 {
-    (void)data;
-    (void)index;
-    //    if(data.isEmpty()
-    //            || m_showList.size() < index.row()
-    //            || !index.isValid())
-    //        return;
 
-    //    int realRow = index.row() - 1;
-    //    if(realRow < 0)
-    //        return;
-
-    //    switch (index.column()) {
-    //    case 1: {
-    //        Car editingData = m_showList[realRow];
-    //        m_currentStorage.erase(editingData.number());
-    //        editingData.setNumber(data.data());
-    //        m_currentStorage.insert(editingData.number(), editingData);
-    //        m_showList = m_currentStorage.values();
-    //        break;
-    //    }
-    //    case 2: {
-    //        const char *key = m_showList[realRow].number();
-    //        Car &editingData = m_currentStorage[key];
-    //        editingData.setBrand(data.data());
-    //        m_showList = m_currentStorage.values();
-    //        break;
-    //    }
-    //    case 3: {
-    //        const char *key = m_showList[realRow].number();
-    //        Car &editingData = m_currentStorage[key];
-    //        editingData.setColor(data.data());
-    //        m_showList = m_currentStorage.values();
-    //        break;
-    //    }
-    //    case 4: {
-    //        const char *key = m_showList[realRow].number();
-    //        Car &editingData = m_currentStorage[key];
-    //        editingData.setYear(data.toInt());
-    //        m_showList = m_currentStorage.values();
-    //        break;
-    //    }
-    //    case 5: {
-    //        const char *key = m_showList[realRow].number();
-    //        Car &editingData = m_currentStorage[key];
-    //        if(std::strncmp(data.data(), "Да", 3))
-    //            editingData.setAvailable(true);
-    //        else
-    //            editingData.setAvailable(false);
-    //        m_showList = m_currentStorage.values();
-    //    }
-    //    }
 }
 
-void ClientsModel::insertColumn(int column)
+void ClientsModel::clearModel()
 {
-    (void)column;
-}
-
-void ClientsModel::removeColumn(int column)
-{
-    (void)column;
+    m_currentStorage.clear();
+    m_showList = m_currentStorage.values();
 }
 
 int ClientsModel::columnCount() const
@@ -155,30 +101,6 @@ int ClientsModel::rowCount() const
     return m_showList.size() + 1;
 }
 
-void ClientsModel::insertRow(int row)
-{
-    (void)row;
-}
-
-void ClientsModel::insertRow(const Client &client)
-{
-    m_currentStorage.insert(client.license(), client);
-    m_showList = m_currentStorage.values();
-}
-
-Client ClientsModel::getByKey(const char *key)
-{
-    if(m_currentStorage.hasKey(key))
-        return m_currentStorage[key];
-    return Client();
-}
-
-void ClientsModel::clearModel()
-{
-    m_currentStorage.clear();
-    m_showList = m_currentStorage.values();
-}
-
 void ClientsModel::removeRow(int row)
 {
     if(m_showList.size() < row)
@@ -187,4 +109,17 @@ void ClientsModel::removeRow(int row)
     Client &removedVal = m_showList[row - 1];
     m_currentStorage.erase(removedVal.license());
     m_showList = m_currentStorage.values();
+}
+
+void ClientsModel::insertRow(const Client &client)
+{
+    m_currentStorage.insert(client.license(), client);
+    m_showList = m_currentStorage.values();
+}
+
+Client ClientsModel::dataByKey(const char *key)
+{
+    if(m_currentStorage.hasKey(key))
+        return m_currentStorage[key];
+    return Client();
 }
