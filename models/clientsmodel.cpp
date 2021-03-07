@@ -32,19 +32,19 @@ void ClientsModel::initHeader()
         std::strncat(header, " ", 1);
     std::strncat(header, " | ", 3);
     std::strncat(header, licence, 100);
-    for(int i = 0; i < 25 - app_global::numberOfLetters(licence); ++i)
+    for(int i = 0; i < 45 - app_global::numberOfLetters(licence); ++i)
         std::strncat(header, " ", 1);
     std::strncat(header, " | ", 3);
     std::strncat(header, name, 100);
-    for(int i = 0; i < 25 - app_global::numberOfLetters(name); ++i)
+    for(int i = 0; i < 45 - app_global::numberOfLetters(name); ++i)
         std::strncat(header, " ", 1);
     std::strncat(header, " | ", 3);
     std::strncat(header, passport, 100);
-    for(int i = 0; i < 25 - app_global::numberOfLetters(passport); ++i)
+    for(int i = 0; i < 45 - app_global::numberOfLetters(passport); ++i)
         std::strncat(header, " ", 1);
     std::strncat(header, " | ", 3);
     std::strncat(header, address, 100);
-    for(int i = 0; i < 25 - app_global::numberOfLetters(address); ++i)
+    for(int i = 0; i < 45 - app_global::numberOfLetters(address); ++i)
         std::strncat(header, " ", 1);
 
     setHeaderData(CStringData(header, 600), 0);

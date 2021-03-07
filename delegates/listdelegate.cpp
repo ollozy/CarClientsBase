@@ -54,8 +54,8 @@ void ListDelegate::drawData()
             std::strncat(dataPresentation, " ", 1);
     }
     else {
-        std::strncat(dataPresentation, data.data(), app_global::realFilledStringSize(data.data(), 25));
-        for(int i = 0; i < 25 - app_global::numberOfLetters(data.data()); ++i)
+        std::strncat(dataPresentation, data.data(), app_global::realFilledStringSize(data.data(), 45));
+        for(int i = 0; i < 45 - app_global::numberOfLetters(data.data()); ++i)
             std::strncat(dataPresentation, " ", 1);
     }
     std::cout << dataPresentation;

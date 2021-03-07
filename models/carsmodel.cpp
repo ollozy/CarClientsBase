@@ -33,23 +33,23 @@ void CarsModel::initHeader()
         std::strncat(header, " ", 1);
     std::strncat(header, " | ", 3);
     std::strncat(header, numb, 100);
-    for(int i = 0; i < 25 - app_global::numberOfLetters(numb); ++i)
+    for(int i = 0; i < 45 - app_global::numberOfLetters(numb); ++i)
         std::strncat(header, " ", 1);
     std::strncat(header, " | ", 3);
     std::strncat(header, brand, 100);
-    for(int i = 0; i < 25 - app_global::numberOfLetters(brand); ++i)
+    for(int i = 0; i < 45 - app_global::numberOfLetters(brand); ++i)
         std::strncat(header, " ", 1);
     std::strncat(header, " | ", 3);
     std::strncat(header, color, 100);
-    for(int i = 0; i < 25 - app_global::numberOfLetters(color); ++i)
+    for(int i = 0; i < 45 - app_global::numberOfLetters(color); ++i)
         std::strncat(header, " ", 1);
     std::strncat(header, " | ", 3);
     std::strncat(header, year, 100);
-    for(int i = 0; i < 25 - app_global::numberOfLetters(year); ++i)
+    for(int i = 0; i < 45 - app_global::numberOfLetters(year); ++i)
         std::strncat(header, " ", 1);
     std::strncat(header, " | ", 3);
     std::strncat(header, available, 100);
-    for(int i = 0; i < 25 - app_global::numberOfLetters(available); ++i)
+    for(int i = 0; i < 45 - app_global::numberOfLetters(available); ++i)
         std::strncat(header, " ", 1);
 
     setHeaderData(CStringData(header, 600), 0);
