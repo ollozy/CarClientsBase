@@ -27,6 +27,8 @@ public:
     void insertRow(const Car &car);
     Car dataByKey(const char *key);
 
+    void find(const char *key, int col);
+
 private:
     Hash<Car, app_global::car::numberMaxLen> m_currentStorage;
     LinkList<Car> m_showList;

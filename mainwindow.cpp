@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 
 #include "./app_core/cstringdata.h"
 #include "./app_core/linklist.h"
@@ -268,16 +268,26 @@ void MainWindow::appendCar()
 
     std::cout << std::endl;
 
-    getUserInput("Номер автомобиля: ", 30, numb, app_global::car::numberMaxLen);
-    while (!checkCarNumber(numb)) {
-        std::cout << "Неверный формат. Повторите ввод (Enter для выхода): \n";
-        getUserInput("Номер автомобиля: ", 30, numb, app_global::car::numberMaxLen);
-        if(std::strlen(numb) == 0)
-            return;
+    if(!getUserInput("Номер автомобиля: ", 60, numb, app_global::car::numberMaxLen)) {
+        m_userInputState = false;
+        return;
     }
-    getUserInput("Марка автомобиля: ", 30, brand, app_global::car::brandMaxLen);
-    getUserInput("Цвет автомобиля: ", 30, color, app_global::car::colorMaxLen);
-    getUserInput("Год выпуска автомобиля: ", 30, year);
+    while (!checkCarNumber(numb)) {
+        std::cout << "Неверный формат. Повторите ввод\n";
+        if(!getUserInput("Номер автомобиля: ", 60, numb, app_global::car::numberMaxLen)) {
+            m_userInputState = false;
+            return;
+        }
+    }
+    if(!getUserInput("Марка автомобиля: ", 60, brand, app_global::car::brandMaxLen)) {
+        m_userInputState = false;
+        return;
+    }
+    if(!getUserInput("Цвет автомобиля: ", 60, color, app_global::car::colorMaxLen)) {
+        m_userInputState = false;
+        return;
+    }
+    getUserInput("Год выпуска автомобиля: ", 60, year);
 
     Car newCar(numb, brand, color, year);
     m_carModel->insertRow(newCar);
@@ -287,19 +297,29 @@ void MainWindow::appendCar()
 
 void MainWindow::findCar()
 {
+    m_userInputState = true;
+
+    m_lastView = m_list;
+    update();
+
     char key[app_global::car::numberMaxLen] = "\0";
     std::cout << "Введите номер автомобиля для поиска\n";
-    getUserInput("Номер автомобиля: ", 60, key, app_global::car::numberMaxLen);
+    if(!getUserInput("Номер автомобиля: ", 60, key, app_global::car::numberMaxLen)) {
+        m_userInputState = false;
+        return;
+    }
     if(!checkCarNumber(key)) {
-        std::cout << "Неверный формат. Повторите ввод (Enter для выхода): \n";
-        getUserInput("Номер автомобиля: ", 60, key, app_global::car::numberMaxLen);
-        if(std::strlen(key) == 0)
+        std::cout << "Неверный формат. Повторите ввод\n";
+        if(!getUserInput("Номер автомобиля: ", 60, key, app_global::car::numberMaxLen)) {
+            m_userInputState = false;
             return;
+        }
     }
     std::cout << std::endl;
 
     Car foundCar = m_carModel->dataByKey(key);
 
+    app_global::clearConsole();
     if(!checkCarNumber(foundCar.number()))
         std::cout << "Автомобиль с таким номером не зарегистрирован\n";
     else {
@@ -310,9 +330,9 @@ void MainWindow::findCar()
         showLine("Год выпуска: ", 60, foundCar.year());
         std::cout << std::endl;
 
-        if(foundCar.available()) {
-            RentInfo rentInfo; //= m_rentInfoModel->mapClientByCar(foundCar.number());
-            Client foundClient = m_clientsModel->dataByKey(rentInfo.clientData());
+        if(!foundCar.available()) {
+            RentInfo info = m_rentInfoModel->mapCar(foundCar);
+            Client foundClient = m_clientsModel->dataByKey(info.clientData());
             std::cout << "Автомобиль выдан клиенту\n";
             showLine("Номер водительского удостоверения: ", 60, foundClient.license());
             showLine("ФИО: ", 60, foundClient.name());
@@ -323,6 +343,7 @@ void MainWindow::findCar()
     std::cout << "(Enter для выхода)";
     std::cout << std::endl;
     std::cin.get();
+    m_userInputState = false;
 }
 
 void MainWindow::appendClient()
@@ -339,16 +360,29 @@ void MainWindow::appendClient()
 
     std::cout << std::endl;
 
-    getUserInput("Номер удостоверения: ", 30, license, app_global::client::licenseLen);
-    while(!checkClientLicense(license)) {
-        std::cout << "Неверный формат. Повторите ввод (Enter для выхода): \n";
-        getUserInput("Номер водительского удостоверения: ", 30, license, app_global::client::licenseLen);
-        if(std::strlen(license) == 0)
-            return;
+    if(!getUserInput("Номер водительского  удостоверения: ", 60, license, app_global::client::licenseLen)) {
+        m_userInputState = false;
+        return;
     }
-    getUserInput("ФИО клиента: ", 30, name, app_global::client::nameMaxLen);
-    getUserInput("Паспортные данные: ", 30, passport, app_global::client::passportMaxLen);
-    getUserInput("Адрес: ", 30, address, app_global::client::addressMaxLen);
+    while(!checkClientLicense(license)) {
+        std::cout << "Неверный формат. Повторите ввод\n";
+        if(!getUserInput("Номер водительского удостоверения: ", 60, license, app_global::client::licenseLen)) {
+            m_userInputState = false;
+            return;
+        }
+    }
+    if(!getUserInput("ФИО клиента: ", 60, name, app_global::client::nameMaxLen)) {
+        m_userInputState = false;
+        return;
+    }
+    if(!getUserInput("Паспортные данные: ", 60, passport, app_global::client::passportMaxLen)) {
+        m_userInputState = false;
+        return;
+    }
+    if(!getUserInput("Адрес: ", 60, address, app_global::client::addressMaxLen)) {
+        m_userInputState = false;
+        return;
+    }
 
     Client newClient(license, name, passport, address);
     m_clientsModel->insertRow(newClient);
@@ -358,14 +392,23 @@ void MainWindow::appendClient()
 
 void MainWindow::findClient()
 {
+    m_userInputState = true;
+
+    m_lastView = m_list;
+    update();
+
     char key[app_global::car::numberMaxLen] = "\0";
     std::cout << "Введите номер водительского удостоверения для поиска\n";
-    getUserInput("Номер водительского удостоверения: ", 60, key, app_global::client::licenseLen);
+    if(!getUserInput("Номер водительского удостоверения: ", 60, key, app_global::client::licenseLen)) {
+        m_userInputState = false;
+            return;
+    }
     if(!checkCarNumber(key)) {
         std::cout << "Неверный формат. Повторите ввод (Enter для выхода): \n";
-        getUserInput("Номер водительского удостоверения: ", 60, key, app_global::client::licenseLen);
-        if(std::strlen(key) == 0)
-            return;
+        if(!getUserInput("Номер водительского удостоверения: ", 60, key, app_global::client::licenseLen)) {
+            m_userInputState = false;
+                return;
+        }
     }
     std::cout << std::endl;
 
@@ -376,15 +419,15 @@ void MainWindow::findClient()
     else {
         std::cout << "Найден клиент:\n";
         showLine("Номер водительского удостоверения: ", 60, foundClient.license());
-        showLine("ФИО клиента: ", 30, foundClient.name());
-        showLine("Паспортные данные: ", 30, foundClient.passport());
-        showLine("Адрес: ", 30, foundClient.address());
+        showLine("ФИО клиента: ", 60, foundClient.name());
+        showLine("Паспортные данные: ", 60, foundClient.passport());
+        showLine("Адрес: ", 60, foundClient.address());
         std::cout << std::endl;
 
-        RentInfo info;
+        RentInfo info = m_rentInfoModel->mapClient(foundClient);
         Car rentedCar = m_carModel->dataByKey(info.carData());
 
-        if(checkCarNumber(rentedCar.number()) && !rentedCar.available()) {
+        if(checkCarNumber(rentedCar.number()) && rentedCar.available()) {
             std::cout << "Клиенту выдан автомобиль\n";
             showLine("Гос. номер: ", 60, rentedCar.number());
         }
@@ -394,17 +437,36 @@ void MainWindow::findClient()
     std::cout << "(Enter для выхода)";
     std::cout << std::endl;
     std::cin.get();
+    m_userInputState = false;
 }
 
 void MainWindow::filter()
 {
+    m_userInputState = true;
+    clearFilter();
+    update();
+
     char keyWord[100] = "\0";
 
+    int column = -1;
+    switch(m_currentModel) {
+    case ClientModel:
+        std::cout << "Выберите столбец для фильтрации\n";
+        showLine("ФИО", 60, 2);
+        showLine("Адрес", 60, 4);
+        getUserInput("\ruser:~> ", 1, column);
+        break;
+    case CarModel:
+        column = 2;
+        break;
+    default:
+        column = -1;
+    }
 
-    std::cout << "Введите слово для фильтра: ";
-    std::cin.getline(keyWord, 100);
+    getUserInput("Введите слово для фильтра: ", 60, keyWord, 100);
+    m_proxy->setFilter(keyWord, column);
 
-    m_proxy->setFilter(keyWord, 2);
+    m_userInputState = false;
 }
 
 void MainWindow::clearFilter()
@@ -519,11 +581,12 @@ bool MainWindow::checkCarNumber(const char *key) const
 
 bool MainWindow::checkClientLicense(const char *key) const
 {
-    if(app_global::numberOfLetters(key) != 9)
+    int in = app_global::numberOfLetters(key);
+    if(app_global::numberOfLetters(key) != 12)
         return false;
 
     const char *keyPtr = key;
-    for(int i = 0; i < 9; ++i) {
+    for(int i = 0; i < 12; ++i) {
         switch (i) {
         case 3:
         case 4:{
@@ -556,11 +619,13 @@ bool MainWindow::checkClientLicense(const char *key) const
             int simbolCode = static_cast<int>(*keyPtr++);
             if(simbolCode < 48 || simbolCode > 57)
                 return false;
+            break;
         }
         case 2:
         case 5:
             if(*keyPtr++ != ' ')
                 return false;
+            break;
         default:
             std::cout << "wrong char number\n";
             return false;
@@ -569,33 +634,39 @@ bool MainWindow::checkClientLicense(const char *key) const
     return true;
 }
 
-void MainWindow::getUserInput(const char *title, int fieldWidth, int &storage)
+bool MainWindow::getUserInput(const char *title, int fieldWidth, int &storage)
 {
     std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
     std::cout << std::setw(app_global::realFilledStringSize(title, fieldWidth))
               << std::setfill('_') << title << " ";
-    std::cin >> storage;
+    (std::cin >> storage).get();
     while(!std::cin) {
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         std::cout << "Введено некорректное значение. Повторите ввод (0 для выхода): ";
-        std::cin >> storage;
+        (std::cin >> storage).get();
         if(storage == 0)
-            break;
+            return false;
     }
+    return true;
 }
 
-void MainWindow::getUserInput(const char *title, int fieldWidth, char *storage, int storageLen)
+bool MainWindow::getUserInput(const char *title, int fieldWidth, char *storage, int storageLen)
 {
     std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
-    std::cout << std::setw(app_global::realFilledStringSize(title, fieldWidth))
-              << std::setfill('_') << title << " ";
+    std::cout << title
+              << std::setw(app_global::realFilledStringSize("(Enter для выхода) ", fieldWidth - app_global::numberOfLetters(title)))
+              << std::setfill('_') << "(Enter для выхода) " << " ";
     std::cin.getline(storage, storageLen, '\n');
     if(!std::cin){
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
     std::cout.unsetf(std::ios_base::adjustfield);
+    if(std::strlen(storage) == 0)
+        return false;
+
+    return true;
 }
 
 void MainWindow::showLine(const char *title, int fieldWidth, const char *data)
