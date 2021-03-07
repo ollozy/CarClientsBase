@@ -32,6 +32,7 @@ private:
     void initProxy() const;
     ModelIndex mapToSource(const ModelIndex &proxyIndex) const;
     ModelIndex mapToProxy(const ModelIndex &index) const;
+    bool textSearch(const char *data, const char *keyWord) const;
 
 private:
     AbstractItemModel *m_currentModel;

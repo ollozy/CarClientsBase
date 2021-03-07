@@ -142,7 +142,7 @@ void ProxyModel::filter() const
         row < m_currentModel->rowCount() && iter != m_showedIndexes.end(); ++row) {
         ModelIndex filterIndex(row, m_filterColumn);
         for(int col = 0; col < m_currentModel->columnCount() && iter != m_showedIndexes.end(); ++col) {
-            if(std::strncmp(m_currentModel->data(filterIndex).data(), m_filterWord, 100) != 0) {
+            if(!textSearch(m_currentModel->data(filterIndex).data(), m_filterWord)) {
                 if(row == 0) {
                     ++iter;
                     continue;
@@ -202,4 +202,23 @@ ModelIndex ProxyModel::mapToProxy(const ModelIndex &index) const
         }
     }
     return ModelIndex();
+}
+
+bool ProxyModel::textSearch(const char *data, const char *key) const
+{
+    int dataLen = std::strlen(data);
+    int keyLen = std::strlen(key);
+
+    if(keyLen > dataLen)
+        return false;
+
+    else if(keyLen == dataLen)
+        return std::strncmp(data, key, dataLen) == 0;
+
+    const char *dataPtr = data;
+    for(int i = 0; i < dataLen - keyLen; ++i, ++dataPtr) {
+        if(std::strncmp(dataPtr, key, keyLen) == 0)
+            return true;
+    }
+    return false;
 }
