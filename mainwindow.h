@@ -84,6 +84,11 @@ private:
     bool checkCarNumber(const char *key) const;
     bool checkClientLicense(const char *key) const;
 
+    void getUserInput(const char *title, int fieldWidth, int &storage);
+    void getUserInput(const char *title, int fieldWidth, char *storage, int storageLen);
+    void showLine(const char *title, int fieldWidth, const char *data);
+    void showLine(const char *title, int fieldWidth, int data);
+
     AbstractItemModel *modelByType(ModelType type);
 
 private:

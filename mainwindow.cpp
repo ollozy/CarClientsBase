@@ -50,7 +50,7 @@ void MainWindow::open()
     while (!m_exit) {
         update();
 
-        std::cin >> m_command;
+        (std::cin >> m_command).get();
         if(!std::cin) {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -153,49 +153,38 @@ void MainWindow::switchCommand(const int &command)
 
 void MainWindow::mainPanel()
 {
-    std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
     if(!m_showHintPanel)
-        std::cout << std::setw(app_global::realFilledStringSize("Показать комманды ", 61))
-                  << std::setfill('_') << "\rПоказать комманды " << ' ' << ShowHint << '\n';
+        showLine("\rПоказать комманды ", 61, ShowHint);
     else
-        std::cout << std::setw(app_global::realFilledStringSize("Скрыть комманды ", 60))
-                  << std::setfill('_') << "Скрыть комманды " << ' ' << HideHint << '\n';
-    if(m_lastView != nullptr) {
-        std::cout << std::setw(app_global::realFilledStringSize("Скрыть таблицу ", 60))
-                  << std::setfill('_') << "Скрыть таблицу " << ' ' << HideAllInfo << '\n';
-    }
-    std::cout << std::setw(app_global::realFilledStringSize("Выход ", 60))
-              << std::setfill('_') <<  "Выход " << ' ' << Exit << '\n';
-    std::cout.unsetf(std::ios_base::adjustfield);
+        showLine("Скрыть комманды ", 60, HideHint);
+    if(m_lastView != nullptr)
+        showLine("Скрыть таблицу ", 60, HideAllInfo);
+
+    showLine("Выход ", 60, Exit);
+
     std::cout << std::endl;
     std::cout << "\ruser:~> ";
 }
 
 void MainWindow::hintPanel()
 {
-    std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
-    std::cout << std::setw(app_global::realFilledStringSize("Показать все имеющиеся автомобили ", 61))
-              << std::setfill('_') << "\rПоказать все имеющиеся автомобили " << ' ' << ShowAllCars << '\n';
-    std::cout << std::setw(app_global::realFilledStringSize("Добавить новый автомобиль ", 60))
-              << std::setfill('_') << "Добавить новый автомобиль " << ' ' << AppendCar << '\n';
+    showLine("\rПоказать все имеющиеся автомобили ", 61, ShowAllCars);
+    showLine("Добавить новый автомобиль ", 60, AppendCar);
+
     if(m_currentModel == CarModel) {
-        std::cout << std::setw(app_global::realFilledStringSize("Удалить сведения об автомобиле ", 60))
-                  << std::setfill('_') << "Удалить сведения об автомобиле " << ' ' << RemoveLine << '\n';
-        std::cout << std::setw(app_global::realFilledStringSize("Очистить данные об автомобилях ", 60))
-                  << std::setfill('_') << "Очистить данные об автомобилях " << ' ' << ClearAll << '\n';
-        std::cout << std::setw(app_global::realFilledStringSize("Найти автомобить по гос. номеру ", 60))
-                  << std::setfill('_') << "Найти автомобить по гос. номеру " << ' ' << FindCar << '\n';
+        showLine("Удалить сведения об автомобиле ", 60, RemoveLine);
+        showLine("Очистить данные об автомобилях ", 60, ClearAll);
+        showLine("Найти автомобить по гос. номеру ", 60, FindCar);
     }
     std::cout << std::endl;
-    std::cout << std::setw(app_global::realFilledStringSize("Показать всех зарегистрированных клиентов ", 60))
-              << std::setfill('_') << "Показать всех зарегистрированных клиентов " << ' ' << ShowAllClients << '\n';
-    std::cout << std::setw(app_global::realFilledStringSize("Зарегистрировать нового клиента ", 60))
-              << std::setfill('_') << "Зарегистрировать нового клиента " << ' ' << AppendClient << '\n';
+
+    showLine("Показать всех зарегистрированных клиентов ", 60, ShowAllClients);
+    showLine("Зарегистрировать нового клиента ", 60, AppendClient);
+
     if(m_currentModel == ClientModel) {
-        std::cout << std::setw(app_global::realFilledStringSize("Снять клиента с обслуживания ", 60))
-                  << std::setfill('_') << "Снять клиента с обслуживания " << ' ' << RemoveLine << '\n';
-        std::cout << std::setw(app_global::realFilledStringSize("Очистить данные о клиентах ", 60))
-                  << std::setfill('_') << "Очистить данные о клиентах " << ' ' << ClearAll << '\n';
+        showLine("Снять клиента с обслуживания ", 60, RemoveLine);
+        showLine("Очистить данные о клиентах ", 60, ClearAll);
+        showLine("Найти клиента по номеру водительского удостоверения ", 60, FindCar);
     }
 
     //    std::cout << std::setw(app_global::realStringSize("Вывести на экран данные об аренде ", 60))
@@ -213,18 +202,12 @@ void MainWindow::navigationPanel()
     if(m_currentModel == NoModel)
         return;
 
-    std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
-    std::cout << std::setw(app_global::realFilledStringSize("Предыдущая строка ", 60))
-              << std::setfill('_') << "Предыдущая строка " << ' ' << PreviousLine << '\n';
-    std::cout << std::setw(app_global::realFilledStringSize("Следующая строка ", 61))
-              << std::setfill('_') << "\rСледующая строка " << ' ' << NextLine << '\n';
-    std::cout << std::setw(app_global::realFilledStringSize("Снять выделение ", 60))
-              << std::setfill('_') << "Снять выделение " << ' ' << UnselectLine << '\n';
-    std::cout << std::setw(app_global::realFilledStringSize("Фильтровать ", 60))
-              << std::setfill('_') << "Фильтровать " << ' ' << Filter << '\n';
-    std::cout << std::setw(app_global::realFilledStringSize("Очистить фильтр ", 60))
-              << std::setfill('_') << "Очистить фильтр " << ' ' << ClearFilter << '\n';
-    std::cout.unsetf(std::ios_base::adjustfield);
+    showLine("\rПредыдущая строка ", 61, PreviousLine);
+    showLine("Следующая строка ", 60, NextLine);
+    showLine("Снять выделение ", 60, UnselectLine);
+    showLine("Фильтровать ", 60, Filter);
+    showLine("Очистить фильтр ", 60, ClearFilter);
+
     std::cout << std::endl;
 }
 
@@ -242,7 +225,6 @@ void MainWindow::showView(ModelType type)
     if(m_proxy->model() != model){
         m_delegate->setFieldWidth(app_global::numberOfLetters(model->headerData(0).data()));
         m_proxy->setModel(model);
-        m_proxy->setFilterColumn(2);
     }
 }
 
@@ -260,58 +242,16 @@ void MainWindow::appendCar()
 
     std::cout << std::endl;
 
-    std::cin.clear();
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-    std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
-    std::cout << std::setw(app_global::realFilledStringSize("Номер автомобиля: ", 30))
-              << std::setfill('_') << "Номер автомобиля: " << " ";
-    std::cin.getline(numb, app_global::car::numberMaxLen, '\n');
-    while(!checkCarNumber(numb)) {
-        if(!std::cin) {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        }
+    getUserInput("Номер автомобиля: ", 30, numb, app_global::car::numberMaxLen);
+    while (!checkCarNumber(numb)) {
         std::cout << "Неверный формат. Повторите ввод (Enter для выхода): \n";
-        std::cout << std::setw(app_global::realFilledStringSize("Номер автомобиля: ", 30))
-                  << std::setfill('_') << "Номер автомобиля: " << " ";
-        std::cin.getline(numb, app_global::client::licenseLen, '\n');
-        if(std::strlen(numb) == 0) {
-            m_userInputState = false;
+        getUserInput("Номер автомобиля: ", 30, numb, app_global::car::numberMaxLen);
+        if(std::strlen(numb) == 0)
             return;
-        }
     }
-    std::cin.sync();
-
-    std::cout << std::setw(app_global::realFilledStringSize("Марка автомобиля: ", 30))
-              << std::setfill('_') << "Марка автомобиля: " << " ";
-    std::cin.getline(brand, app_global::car::brandMaxLen, '\n');
-    if(!std::cin){
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
-
-    std::cout << std::setw(app_global::realFilledStringSize("Цвет автомобиля: ", 30))
-              << std::setfill('_') << "Цвет автомобиля: " << " ";
-    std::cin.getline(color, app_global::car::colorMaxLen, '\n');
-    if(!std::cin){
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
-
-    std::cout << std::setw(app_global::realFilledStringSize("Год выпуска автомобиля: ", 30))
-              << std::setfill('_') << "Год выпуска автомобиля: " << " ";
-    std::cin >> year;
-    while(!std::cin) {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "Введено некорректное значение. Повторите ввод (0 для выхода): ";
-        std::cin >> year;
-        if(year == 0)
-            break;
-    }
-
-    std::cout.unsetf(std::ios_base::adjustfield);
+    getUserInput("Марка автомобиля: ", 30, brand, app_global::car::brandMaxLen);
+    getUserInput("Цвет автомобиля: ", 30, color, app_global::car::colorMaxLen);
+    getUserInput("Год выпуска автомобиля: ", 30, year);
 
     Car newCar(numb, brand, color, year);
     m_carModel->insertRow(newCar);
@@ -320,50 +260,39 @@ void MainWindow::appendCar()
 }
 
 void MainWindow::findCar()
-{    
-    std::cin.clear();
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
+{
     char key[app_global::car::numberMaxLen] = "\0";
-    std::cout << "Введите номер автомобиля для поиска: ";
-    std::cin.getline(key, app_global::car::numberMaxLen, '\n');
+    std::cout << "Введите номер автомобиля для поиска\n";
+    getUserInput("Номер автомобиля: ", 60, key, app_global::car::numberMaxLen);
     if(!checkCarNumber(key)) {
-        if(!std::cin) {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        }
-        std::cout << "Неверный формат. Повторите ввод (Enter для выхода): " << std::endl;
-        std::cin.getline(key, app_global::client::licenseLen, '\n');
+        std::cout << "Неверный формат. Повторите ввод (Enter для выхода): \n";
+        getUserInput("Номер автомобиля: ", 60, key, app_global::car::numberMaxLen);
         if(std::strlen(key) == 0)
             return;
     }
     std::cout << std::endl;
-    Car foundCar = m_carModel->getByKey(key);
-    if(!checkCarNumber(foundCar.number())) {
+
+    Car foundCar = m_carModel->dataByKey(key);
+
+    if(!checkCarNumber(foundCar.number()))
         std::cout << "Автомобиль с таким номером не зарегистрирован\n";
-    }
     else {
-        std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
         std::cout << "Найден автомобиль:\n";
-        std::cout << std::setw(app_global::realFilledStringSize("Государственный регистрационный номер: ", 61))
-                  << std::setfill('_') << "\rГосударственный регистрационный номер: " << foundCar.number() << '\n';
-        std::cout << std::setw(app_global::realFilledStringSize("Цвет: ", 60))
-                  << std::setfill('_') << "Цвет: " << foundCar.brand() << '\n';
-        std::cout << std::setw(app_global::realFilledStringSize("Марка: ", 60))
-                  << std::setfill('_') << "Марка: " << foundCar.color() << '\n';
-        std::cout << std::setw(app_global::realFilledStringSize("Год выпуска: ", 60))
-                  << std::setfill('_') << "Год выпуска: " << foundCar.year() << '\n';
+        showLine("Гос. номер: ", 60, foundCar.number());
+        showLine("Марка: ", 60, foundCar.brand());
+        showLine("Цвет: ", 60, foundCar.color());
+        showLine("Год выпуска: ", 60, foundCar.year());
         std::cout << std::endl;
+
         if(foundCar.available()) {
             RentInfo rentInfo; //= m_rentInfoModel->mapClientByCar(foundCar.number());
-            Client foundClinet = m_clientsModel->getByKey(rentInfo.clientData());
-            std::cout << "Автомобиль выдан клиенту: \n";
-            std::cout << std::setw(app_global::realFilledStringSize("ФИО: ", 60))
-                      << std::setfill('_') << "ФИО: " << foundClinet.name() << '\n';
-            std::cout << std::setw(app_global::realFilledStringSize("Номер водительского удостоверения: ", 60))
-                      << std::setfill('_') << "Номер водительского удостоверения: " << foundClinet.license() << '\n';
+            Client foundClient = m_clientsModel->dataByKey(rentInfo.clientData());
+            std::cout << "Автомобиль выдан клиенту\n";
+            showLine("Номер водительского удостоверения: ", 60, foundClient.license());
+            showLine("ФИО: ", 60, foundClient.name());
         }
-        std::cout.unsetf(std::ios_base::adjustfield);
+        else
+            std::cout << "Автомобиль с таким гос. номером доступен для аренды\n";
     }
     std::cout << "(Enter для выхода)";
     std::cout << std::endl;
@@ -384,51 +313,16 @@ void MainWindow::appendClient()
 
     std::cout << std::endl;
 
-    std::cin.clear();
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-    std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
-    std::cout << std::setw(app_global::realFilledStringSize("Номер удостоверения: ", 30))
-              << std::setfill('_') << "Номер удостоверения: " << " ";
-    std::cin.getline(license, app_global::client::licenseLen, '\n');
-    if(!checkClientLicense(license)) {
-        if(!std::cin) {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        }
-        std::cout << "Неверный формат. Повторите ввод (Enter для выхода): " << std::endl;
-        std::cin.getline(license, app_global::client::licenseLen, '\n');
-        if(std::strlen(license) == 0) {
-            m_userInputState = false;
+    getUserInput("Номер удостоверения: ", 30, license, app_global::client::licenseLen);
+    while(!checkClientLicense(license)) {
+        std::cout << "Неверный формат. Повторите ввод (Enter для выхода): \n";
+        getUserInput("Номер водительского удостоверения: ", 30, license, app_global::client::licenseLen);
+        if(std::strlen(license) == 0)
             return;
-        }
     }
-
-    std::cout << std::setw(app_global::realFilledStringSize("ФИО клиента: ", 30))
-              << std::setfill('_') << "ФИО клиента: " << " ";
-    std::cin.getline(name, app_global::client::nameMaxLen, '\n');
-    if(!std::cin){
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
-
-    std::cout << std::setw(app_global::realFilledStringSize("Паспортные данные: ", 30))
-              << std::setfill('_') << "Паспортные данные: " << " ";
-    std::cin.getline(passport, app_global::client::addressMaxLen, '\n');
-    if(!std::cin){
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
-
-    std::cout << std::setw(app_global::realFilledStringSize("Адрес: ", 30))
-              << std::setfill('_') << "Адрес: " << " ";
-    std::cin.getline(address, app_global::client::addressMaxLen, '\n');
-    if(!std::cin){
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
-
-    std::cout.unsetf(std::ios_base::adjustfield);
+    getUserInput("ФИО клиента: ", 30, name, app_global::client::nameMaxLen);
+    getUserInput("Паспортные данные: ", 30, passport, app_global::client::passportMaxLen);
+    getUserInput("Адрес: ", 30, address, app_global::client::addressMaxLen);
 
     Client newClient(license, name, passport, address);
     m_clientsModel->insertRow(newClient);
@@ -438,30 +332,58 @@ void MainWindow::appendClient()
 
 void MainWindow::findClient()
 {
-    char key[app_global::client::licenseLen] = "\0";
-    std::cout << "Введите номер водительского удостоверения для поиска: ";
-    std::cin.getline(key, app_global::client::licenseLen, '\n');
-    m_clientsModel->getByKey(key);
+    char key[app_global::car::numberMaxLen] = "\0";
+    std::cout << "Введите номер водительского удостоверения для поиска\n";
+    getUserInput("Номер водительского удостоверения: ", 60, key, app_global::client::licenseLen);
+    if(!checkCarNumber(key)) {
+        std::cout << "Неверный формат. Повторите ввод (Enter для выхода): \n";
+        getUserInput("Номер водительского удостоверения: ", 60, key, app_global::client::licenseLen);
+        if(std::strlen(key) == 0)
+            return;
+    }
+    std::cout << std::endl;
+
+    Client foundClient = m_clientsModel->dataByKey(key);
+
+    if(!checkCarNumber(foundClient.license()))
+        std::cout << "Клиент с таким удостоверения не зарегистрирован\n";
+    else {
+        std::cout << "Найден клиент:\n";
+        showLine("Номер водительского удостоверения: ", 60, foundClient.license());
+        showLine("ФИО клиента: ", 30, foundClient.name());
+        showLine("Паспортные данные: ", 30, foundClient.passport());
+        showLine("Адрес: ", 30, foundClient.address());
+        std::cout << std::endl;
+
+        RentInfo info;
+        Car rentedCar = m_carModel->dataByKey(info.carData());
+
+        if(checkCarNumber(rentedCar.number()) && !rentedCar.available()) {
+            std::cout << "Клиенту выдан автомобиль\n";
+            showLine("Гос. номер: ", 60, rentedCar.number());
+        }
+        else
+            std::cout << "Клиенту не было выдано в аренду ни одного автомобиля\n";
+    }
+    std::cout << "(Enter для выхода)";
+    std::cout << std::endl;
+    std::cin.get();
 }
 
 void MainWindow::filter()
 {
     char keyWord[100] = "\0";
 
-    std::cin.clear();
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     std::cout << "Введите слово для фильтра: ";
     std::cin.getline(keyWord, 100);
 
-    m_proxy->setFilter(keyWord);
+    m_proxy->setFilter(keyWord, 2);
 }
 
 void MainWindow::clearFilter()
 {
-    std::cin.clear();
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    m_proxy->setFilter("\0");
+    m_proxy->clearFilter();
 }
 
 void MainWindow::removeRow()
@@ -492,9 +414,6 @@ void MainWindow::clear()
 
 bool MainWindow::checkCarNumber(const char *key) const
 {
-    /* Государственный регистрационный номер – строка формата
-            * «ANNNAA-NN», где N –цифра; A – буква из следующего множества:
-            * А, В, Е, К, М, Н, О, Р, С, Т, У, Х; */
     if(app_global::numberOfLetters(key) != 9)
         return false;
 
@@ -546,10 +465,6 @@ bool MainWindow::checkCarNumber(const char *key) const
 
 bool MainWindow::checkClientLicense(const char *key) const
 {
-    /* – Номер водительского удостоверения – строка формата «0R 1R 2  3A 4A 5  6N 7N 8N 9N 10N 11N»,
-    * где RR – код региона (цифры); AA – серия (буквы из следующего множества: А, В, Е, К, М, Н, О, Р, С, Т, У, Х); NNNNNN –
-    * порядковый номер удостоверения (цифры). Код, серия и номер отделяются друг от друга пробелами; */
-
     if(app_global::numberOfLetters(key) != 9)
         return false;
 
@@ -598,6 +513,51 @@ bool MainWindow::checkClientLicense(const char *key) const
         }
     }
     return true;
+}
+
+void MainWindow::getUserInput(const char *title, int fieldWidth, int &storage)
+{
+    std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
+    std::cout << std::setw(app_global::realFilledStringSize(title, fieldWidth))
+              << std::setfill('_') << title << " ";
+    std::cin >> storage;
+    while(!std::cin) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Введено некорректное значение. Повторите ввод (0 для выхода): ";
+        std::cin >> storage;
+        if(storage == 0)
+            break;
+    }
+}
+
+void MainWindow::getUserInput(const char *title, int fieldWidth, char *storage, int storageLen)
+{
+    std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
+    std::cout << std::setw(app_global::realFilledStringSize(title, fieldWidth))
+              << std::setfill('_') << title << " ";
+    std::cin.getline(storage, storageLen, '\n');
+    if(!std::cin){
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+    std::cout.unsetf(std::ios_base::adjustfield);
+}
+
+void MainWindow::showLine(const char *title, int fieldWidth, const char *data)
+{
+    std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
+    std::cout << std::setw(app_global::realFilledStringSize(title, fieldWidth))
+              << std::setfill('_') << title << ' ' << data << '\n';
+    std::cout.unsetf(std::ios_base::adjustfield);
+}
+
+void MainWindow::showLine(const char *title, int fieldWidth, int data)
+{
+    std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
+    std::cout << std::setw(app_global::realFilledStringSize(title, fieldWidth))
+              << std::setfill('_') << title << ' ' << data << '\n';
+    std::cout.unsetf(std::ios_base::adjustfield);
 }
 
 AbstractItemModel *MainWindow::modelByType(ModelType type)
