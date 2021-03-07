@@ -1,4 +1,4 @@
-﻿#include "mainwindow.h"
+#include "mainwindow.h"
 
 #include "./app_core/cstringdata.h"
 #include "./app_core/linklist.h"
@@ -24,7 +24,7 @@ MainWindow::MainWindow()
     , m_userInputState(false)
     , m_carModel(new CarsModel)
     , m_clientsModel(new ClientsModel)
-    , m_rentInfoModel(nullptr)
+    , m_rentInfoModel(new RentInfoModel)
     , m_list(new ListView)
     , m_delegate(new ListDelegate)
     , m_proxy(new ProxyModel)
@@ -34,14 +34,17 @@ MainWindow::MainWindow()
     m_list->setModel(m_proxy);
     m_carModel->initHeader();
     m_clientsModel->initHeader();
+    m_rentInfoModel->initHeader();
 }
 
 MainWindow::~MainWindow()
 {
     delete m_list;
     delete m_delegate;
-    delete m_carModel;
     delete m_proxy;
+    delete m_carModel;
+    delete m_clientsModel;
+    delete m_carModel;
 }
 
 void MainWindow::open()
@@ -62,7 +65,7 @@ void MainWindow::open()
 
 void MainWindow::update()
 {
-    system("clear");
+    app_global::clearConsole();
     if(m_lastView) {
         m_lastView->update();
         std::cout << std::endl;
@@ -123,7 +126,16 @@ void MainWindow::switchCommand(const int &command)
         appendCar();
         break;
     case FindCar:
+        showView(CarModel);
         findCar();
+        break;
+    case RepairCar:
+        showView(CarModel);
+        setCarAvailable(false);
+        break;
+    case ReturnRepairingCar:
+        showView(CarModel);
+        setCarAvailable(true);
         break;
 
     case ShowAllClients:
@@ -134,18 +146,21 @@ void MainWindow::switchCommand(const int &command)
         appendClient();
         break;
     case FindClient:
+        showView(ClientModel);
         findClient();
         break;
 
-
-        //    case ShowRentInfo:
-        //        break;
-        //    case IssueCar:
-        //        break;
-        //    case EraseClient:
-        //        break;
-        //    case ReturnCar:
-        //        break;
+    case ShowRentInfo:
+        showView(RentModel);
+        break;
+    case IssueCar:
+        showView(RentModel);
+        issueCar();
+        break;
+    case ReturnCar:
+        showView(RentModel);
+        returnCar();
+        break;
     default:
         break;
     }
@@ -175,6 +190,8 @@ void MainWindow::hintPanel()
         showLine("Удалить сведения об автомобиле ", 60, RemoveLine);
         showLine("Очистить данные об автомобилях ", 60, ClearAll);
         showLine("Найти автомобить по гос. номеру ", 60, FindCar);
+        showLine("Отправить автомобиль в ремонт ", 60, RepairCar);
+        showLine("Вернуть автомобиль из ремента ", 60, ReturnRepairingCar);
     }
     std::cout << std::endl;
 
@@ -186,6 +203,15 @@ void MainWindow::hintPanel()
         showLine("Очистить данные о клиентах ", 60, ClearAll);
         showLine("Найти клиента по номеру водительского удостоверения ", 60, FindCar);
     }
+    std::cout << std::endl;
+
+    showLine("Показать информацию об аренде ", 60, ShowRentInfo);
+    showLine("Выдать автомобить в аренду ", 60, IssueCar);
+
+    if(m_currentModel == RentModel) {
+        showLine("Вернуть автомобить из аренты ", 60, ReturnCar);
+    }
+
 
     //    std::cout << std::setw(app_global::realStringSize("Вывести на экран данные об аренде ", 60))
     //              << std::setfill('_') << "Вывести на экран данные об аренде " << ' ' << ShowRentInfo << '\n';
@@ -410,6 +436,34 @@ void MainWindow::clear()
 
     m_proxy->clearModel();
     m_list->clearSelection();
+}
+
+void MainWindow::setCarAvailable(bool available)
+{
+    if(m_proxy->model() != m_carModel || !m_lastView)
+        return;
+
+    ModelIndex selectedIndex = m_lastView->selectedItems().begin();
+    CStringData selectedNum = m_proxy->data(ModelIndex(selectedIndex.row(), 1));
+    if(selectedNum.isEmpty())
+        return;
+
+    Car selectedCar = m_carModel->dataByKey(selectedNum.data());
+    if(selectedCar.available() == available)
+        return;
+
+    selectedCar.setAvailable(available);
+    m_carModel->insertRow(selectedCar);
+}
+
+void MainWindow::issueCar()
+{
+
+}
+
+void MainWindow::returnCar()
+{
+
 }
 
 bool MainWindow::checkCarNumber(const char *key) const

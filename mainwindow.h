@@ -33,6 +33,8 @@ class MainWindow
         ShowAllCars,
         AppendCar,
         FindCar,
+        RepairCar,
+        ReturnRepairingCar,
 
         ShowAllClients,
         AppendClient,
@@ -81,11 +83,16 @@ private:
     void removeRow();
     void clear();
 
+    void setCarAvailable(bool available);
+
+    void issueCar();
+    void returnCar();
+
     bool checkCarNumber(const char *key) const;
     bool checkClientLicense(const char *key) const;
 
-    void getUserInput(const char *title, int fieldWidth, int &storage);
-    void getUserInput(const char *title, int fieldWidth, char *storage, int storageLen);
+    bool getUserInput(const char *title, int fieldWidth, int &storage);
+    bool getUserInput(const char *title, int fieldWidth, char *storage, int storageLen);
     void showLine(const char *title, int fieldWidth, const char *data);
     void showLine(const char *title, int fieldWidth, int data);
 
