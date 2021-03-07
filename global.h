@@ -29,6 +29,7 @@ const int availableMaxLen = 100;
 
 int numberOfLetters(const char *data);
 int realFilledStringSize(const char *data, int destLen, int maxLen = -1);
+void clearConsole();
 
 };
 

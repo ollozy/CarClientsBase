@@ -1,5 +1,6 @@
 #include "global.h"
 
+#include <iostream>
 #include <cctype>
 #include <cstring>
 
@@ -43,6 +44,15 @@ int realFilledStringSize(const char *data, int destLen, int maxLen)
             break;
     }
     return destLen < numOfLet ? strlen : destLen - numOfLet + strlen;
+}
+
+void clearConsole()
+{
+#ifdef unix
+    system("clear");
+#elif
+    system("cls");
+#endif
 }
 
 }
