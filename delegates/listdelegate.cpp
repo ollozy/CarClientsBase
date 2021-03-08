@@ -1,6 +1,6 @@
 #include "listdelegate.h"
 
-#include "../models/carsmodel.h"
+#include "../models/viewmodels/carsviewmodel.h"
 #include "../items.h"
 
 #include "../app_core/cstringdata.h"
@@ -10,6 +10,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cmath>
+#include <cstring>
 
 ListDelegate::ListDelegate()
     : AbstractDelegate()

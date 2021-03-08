@@ -1,6 +1,6 @@
 #include "listview.h"
 
-#include "../models/abstractitemmodel.h"
+#include "../models/viewmodels/abstractitemmodel.h"
 
 #include "../delegates/abstractdelegate.h"
 
@@ -59,11 +59,16 @@ void ListView::update()
 
 void ListView::selectItem(int row, int column)
 {
+    if(!model())
+        return;
+
     if(row == 0)
         return;
 
-    if(!(row < model()->rowCount()))
+    if(!(row < model()->rowCount())) {
+        clearSelection();
         return;
+    }
 
     clearSelection();
     AbstractItemView::selectItem(row, column);
@@ -71,6 +76,9 @@ void ListView::selectItem(int row, int column)
 
 void ListView::selectNext()
 {
+    if(!model())
+        return;
+
     if(selectedItems().isEmpty()) {
         selectItem(1, 0);
         return;
@@ -82,6 +90,9 @@ void ListView::selectNext()
 
 void ListView::selectPrevious()
 {
+    if(!model())
+        return;
+
     if(selectedItems().isEmpty()) {
         selectItem(model()->rowCount() - 1, 0);
         return;

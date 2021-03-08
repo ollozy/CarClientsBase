@@ -149,7 +149,18 @@ Val &Hash<Val, KeyLen>::operator[](const char *key)
 template<typename Val, int KeyLen>
 const Val &Hash<Val, KeyLen>::operator[](const char *key) const
 {
-    return operator[](key);
+    assert(hasKey(key));
+
+    int seg = hashFunction(key);
+    for (int i = 0; seg < m_capacity; ++i) {
+        if (std::strncmp(m_elements[seg].m_key, key, KeyLen) == 0)
+            return m_elements[seg].m_data;
+        else {
+            linearTesting(i, seg);
+            continue;
+        }
+    }
+    return m_elements[0].m_data;
 }
 
 template<typename Val, int KeyLen>

@@ -1,26 +1,23 @@
-#include "carsmodel.h"
+#include "carsviewmodel.h"
 
-#include "../app_core/cstringdata.h"
+#include "../../app_core/cstringdata.h"
 
-#include <cstdlib>
-#include <sstream>
+#include <cstring>
 
-CarsModel::CarsModel()
+CarsViewModel::CarsViewModel()
     : AbstractItemModel()
-    , m_currentStorage()
     , m_showList()
 {
 
 }
 
-CarsModel::~CarsModel()
+CarsViewModel::~CarsViewModel()
 {
 
 }
 
-void CarsModel::initHeader()
+void CarsViewModel::initHeader()
 {
-    setHeaderSize(1);
     char n[100] = "N";
     char numb[100] = "Гос. номер";
     char brand[100] = "Марка";
@@ -52,10 +49,10 @@ void CarsModel::initHeader()
     for(int i = 0; i < 45 - app_global::numberOfLetters(available); ++i)
         std::strncat(header, " ", 1);
 
-    setHeaderData(CStringData(header, 600), 0);
+    setHeaderData(CStringData(header, 600));
 }
 
-CStringData CarsModel::data(const ModelIndex &index) const
+CStringData CarsViewModel::data(const ModelIndex &index) const
 {
     if(m_showList.size() < index.row() - 1
             || !index.isValid())
@@ -66,7 +63,7 @@ CStringData CarsModel::data(const ModelIndex &index) const
 
     int realRow = index.row() - 1;
     if(realRow < 0)
-        return headerData(index.column());
+        return headerData();
 
     switch (index.column()) {
     case 0:
@@ -91,46 +88,17 @@ CStringData CarsModel::data(const ModelIndex &index) const
     return CStringData();
 }
 
-void CarsModel::setData(const CStringData &, const ModelIndex &)
-{
-
-}
-
-void CarsModel::clearModel()
-{
-    m_currentStorage.clear();
-    m_showList = m_currentStorage.values();
-}
-
-int CarsModel::columnCount() const
+int CarsViewModel::columnCount() const
 {
     return 6;
 }
 
-int CarsModel::rowCount() const
+int CarsViewModel::rowCount() const
 {
     return m_showList.size() + 1;
 }
 
-void CarsModel::removeRow(int row)
+void CarsViewModel::update(const LinkList<Car> &newStorage)
 {
-    if(row > m_showList.size())
-        return;
-
-    Car &removedVal = m_showList[row - 1];
-    m_currentStorage.erase(removedVal.number());
-    m_showList = m_currentStorage.values();
-}
-
-void CarsModel::insertRow(const Car &car)
-{
-    m_currentStorage.insert(car.number(), car);
-    m_showList = m_currentStorage.values();
-}
-
-Car CarsModel::dataByKey(const char *key)
-{
-    if(m_currentStorage.hasKey(key))
-        return m_currentStorage[key];
-    return Car();
+    m_showList = newStorage;
 }

@@ -55,4 +55,23 @@ void clearConsole()
 #endif
 }
 
+bool textSearch(const char *key, const char *text)
+{
+    int dataLen = std::strlen(text);
+    int keyLen = std::strlen(key);
+
+    if(keyLen > dataLen)
+        return false;
+
+    else if(keyLen == dataLen)
+        return std::strncmp(text, key, dataLen) == 0;
+
+    const char *dataPtr = text;
+    for(int i = 0; i < dataLen - keyLen + 1; ++i, ++dataPtr) {
+        if(std::strncmp(dataPtr, key, keyLen) == 0)
+            return true;
+    }
+    return false;
+}
+
 }

@@ -3,7 +3,7 @@
 #include <cstring>
 
 Client::Client()
-    : m_license(new char[app_global::client::licenseLen])
+    : m_license(new char[app_global::client::licenseMaxLen])
     , m_name(new char[app_global::client::nameMaxLen])
     , m_passport(new char[app_global::client::passportMaxLen])
     , m_address(new char[app_global::client::addressMaxLen])
@@ -18,24 +18,24 @@ Client::Client(const char *license,
                const char *name,
                const char *passport,
                const char *address)
-    : m_license(new char[app_global::client::licenseLen])
+    : m_license(new char[app_global::client::licenseMaxLen])
     , m_name(new char[app_global::client::nameMaxLen])
     , m_passport(new char[app_global::client::passportMaxLen])
     , m_address(new char[app_global::client::addressMaxLen])
 {
-    std::strncpy(m_license, license, app_global::client::licenseLen);
+    std::strncpy(m_license, license, app_global::client::licenseMaxLen);
     std::strncpy(m_name, name, app_global::client::nameMaxLen);
     std::strncpy(m_passport, passport, app_global::client::passportMaxLen);
     std::strncpy(m_address, address, app_global::client::addressMaxLen);
 }
 
 Client::Client(const Client &other)
-    : m_license(new char[app_global::client::licenseLen])
+    : m_license(new char[app_global::client::licenseMaxLen])
     , m_name(new char[app_global::client::nameMaxLen])
     , m_passport(new char[app_global::client::passportMaxLen])
     , m_address(new char[app_global::client::addressMaxLen])
 {
-    std::strncpy(m_license, other.m_license, app_global::client::licenseLen);
+    std::strncpy(m_license, other.m_license, app_global::client::licenseMaxLen);
     std::strncpy(m_name, other.m_name, app_global::client::nameMaxLen);
     std::strncpy(m_passport, other.m_passport, app_global::client::passportMaxLen);
     std::strncpy(m_address, other.m_address, app_global::client::addressMaxLen);
@@ -54,7 +54,7 @@ const Client &Client::operator=(const Client &other)
     if(this == &other)
         return *this;
 
-    std::strncpy(m_license, other.m_license, app_global::client::licenseLen);
+    std::strncpy(m_license, other.m_license, app_global::client::licenseMaxLen);
     std::strncpy(m_name, other.m_name, app_global::client::nameMaxLen);
     std::strncpy(m_passport, other.m_passport, app_global::client::passportMaxLen);
     std::strncpy(m_address, other.m_address, app_global::client::addressMaxLen);
@@ -69,7 +69,7 @@ const char *Client::license() const
 
 void Client::setLicense(const char *license)
 {
-    std::strncpy(m_license, license, app_global::client::licenseLen);
+    std::strncpy(m_license, license, app_global::client::licenseMaxLen);
 }
 
 const char *Client::name() const
@@ -217,7 +217,7 @@ void Car::setAvailable(bool available)
 }
 
 RentInfo::RentInfo()
-    : m_clientData(new char[app_global::client::licenseLen])
+    : m_clientData(new char[app_global::client::licenseMaxLen])
     , m_carData(new char[app_global::car::numberMaxLen])
     , m_returnDate(new char[app_global::dateLen])
     , m_issueDate(new char[app_global::dateLen])
@@ -229,26 +229,27 @@ RentInfo::RentInfo()
 }
 
 RentInfo::RentInfo(const char *clientData,
-                     const char *carData,
-                     const char *issueDate)
-    : m_clientData(new char[app_global::client::licenseLen])
+                   const char *carData,
+                   const char *issueDate,
+                   const char *returnDate)
+    : m_clientData(new char[app_global::client::licenseMaxLen])
     , m_carData(new char[app_global::car::numberMaxLen])
     , m_returnDate(new char[app_global::dateLen])
     , m_issueDate(new char[app_global::dateLen])
 {
-    std::strncpy(m_clientData, clientData, app_global::client::licenseLen);
+    std::strncpy(m_clientData, clientData, app_global::client::licenseMaxLen);
     std::strncpy(m_carData, carData, app_global::car::numberMaxLen);
     std::strncpy(m_issueDate, issueDate, app_global::dateLen);
-    m_returnDate[0] = '\0';
+    std::strncpy(m_returnDate, returnDate, app_global::dateLen);
 }
 
 RentInfo::RentInfo(const RentInfo &other)
-    : m_clientData(new char[app_global::client::licenseLen])
+    : m_clientData(new char[app_global::client::licenseMaxLen])
     , m_carData(new char[app_global::car::numberMaxLen])
     , m_returnDate(new char[app_global::dateLen])
     , m_issueDate(new char[app_global::dateLen])
 {
-    std::strncpy(m_clientData, other.m_clientData, app_global::client::licenseLen);
+    std::strncpy(m_clientData, other.m_clientData, app_global::client::licenseMaxLen);
     std::strncpy(m_carData, other.m_carData, app_global::car::numberMaxLen);
     std::strncpy(m_issueDate, other.m_issueDate, app_global::dateLen);
     std::strncpy(m_returnDate, other.m_returnDate, app_global::dateLen);
@@ -267,7 +268,7 @@ const RentInfo &RentInfo::operator=(const RentInfo &other)
     if(this == &other)
         return *this;
 
-    std::strncpy(m_clientData, other.m_clientData, app_global::client::licenseLen);
+    std::strncpy(m_clientData, other.m_clientData, app_global::client::licenseMaxLen);
     std::strncpy(m_carData, other.m_carData, app_global::car::numberMaxLen);
     std::strncpy(m_issueDate, other.m_issueDate, app_global::dateLen);
     std::strncpy(m_returnDate, other.m_returnDate, app_global::dateLen);
@@ -282,7 +283,7 @@ const char *RentInfo::clientData() const
 
 void RentInfo::setClientData(const char *clientData)
 {
-    std::strncpy(m_clientData, clientData, app_global::client::licenseLen);
+    std::strncpy(m_clientData, clientData, app_global::client::licenseMaxLen);
 }
 
 const char *RentInfo::carData() const

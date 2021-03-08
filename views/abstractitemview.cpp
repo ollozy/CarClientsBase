@@ -1,6 +1,6 @@
 #include "abstractitemview.h"
 
-#include "../models/abstractitemmodel.h"
+#include "../models/viewmodels/abstractitemmodel.h"
 
 #include "../delegates/abstractdelegate.h"
 
@@ -29,7 +29,7 @@ void AbstractItemView::editItem(const char *newData, int dataLen)
             || !currentIndex.isMulti())
         return;
 
-    m_model->setData(CStringData(newData, dataLen), currentIndex);
+//    m_model->setData(CStringData(newData, dataLen), currentIndex);
 }
 
 void AbstractItemView::selectItem(int row, int column)

@@ -11,6 +11,8 @@
 template<typename Val, int KeyLen>
 class Tree {
 
+    using cmpFunc = bool(*)(const Val &, const Val &);
+
     struct Node {
         Node(const Val &data = Val(), const char *key = nullptr, Node *right = nullptr, Node *left = nullptr)
             : m_data(data)
@@ -123,13 +125,22 @@ class Tree {
             }
             return balance();
         }
-        void valCrawling(LinkList<Val> &storage)
+        void storing(LinkList<Val> &storage)
         {
             if(m_leftChild)
-                m_leftChild->valCrawling(storage);
+                m_leftChild->storing(storage);
             if(m_rightChild)
-                m_rightChild->valCrawling(storage);
+                m_rightChild->storing(storage);
             storage.append(m_data);
+        }
+        void storing(const Val &val, cmpFunc predicat, LinkList<Val> &storage)
+        {
+            if(m_leftChild)
+                m_leftChild->storing(val, predicat, storage);
+            if(m_rightChild)
+                m_rightChild->storing(val, predicat, storage);
+            if(predicat(val, m_data))
+                storage.append(m_data);
         }
 
         Val m_data;
@@ -154,6 +165,8 @@ public:
     void insert(const char *key, const Val &val);
     void erase(const char *key);
     void clear();
+
+    LinkList<Val> find(const Val &searchVal, cmpFunc predicat);
 
     int size() const { return m_size; }
 
@@ -191,7 +204,27 @@ Val &Tree<Val, KeyLen>::operator[](const char *key)
 template<typename Val, int KeyLen>
 const Val &Tree<Val, KeyLen>::operator[](const char *key) const
 {
-    return operator[](key);
+    Node *searchNode = m_rootNode;
+    while(searchNode && std::strncmp(key, searchNode->m_key, KeyLen) != 0) {
+        if(std::strncmp(key, searchNode->m_key, KeyLen) > 0) {
+            if(!searchNode->m_rightChild)
+                searchNode = nullptr;
+            else
+                searchNode = searchNode->m_rightChild;
+        }
+        else {
+            if(!searchNode->m_leftChild)
+                searchNode = nullptr;
+            else
+                searchNode = searchNode->m_leftChild;
+        }
+    }
+    if(searchNode)
+        return searchNode->m_data;
+    else {
+        assert(searchNode);
+        return m_rootNode->m_data;
+    }
 }
 
 template<typename Val, int KeyLen>
@@ -221,7 +254,7 @@ LinkList<Val> Tree<Val, KeyLen>::values() const
     if(!m_rootNode)
         return storage;
 
-    m_rootNode->valCrawling(storage);
+    m_rootNode->storing(storage);
     return storage;
 }
 
@@ -269,6 +302,16 @@ void Tree<Val, KeyLen>::clear()
     while (m_rootNode != nullptr) {
         erase(m_rootNode->m_key);
     }
+}
+
+template<typename Val, int KeyLen>
+LinkList<Val> Tree<Val, KeyLen>::find(const Val &searchVal, cmpFunc predicat)
+{
+    LinkList<Val> storage;
+    if(!m_rootNode)
+        return storage;
+    m_rootNode->storing(searchVal, predicat, storage);
+    return storage;
 }
 
 #endif // SEARCHTREE_H

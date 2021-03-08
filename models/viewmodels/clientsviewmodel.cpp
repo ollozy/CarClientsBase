@@ -1,26 +1,23 @@
-#include "clientsmodel.h"
+#include "clientsviewmodel.h"
 
-#include "../app_core/cstringdata.h"
+#include "../../app_core/cstringdata.h"
 
-#include <cstdlib>
-#include <sstream>
+#include <cstring>
 
-ClientsModel::ClientsModel()
+ClientsViewModel::ClientsViewModel()
     : AbstractItemModel()
-    , m_currentStorage()
     , m_showList()
 {
 
 }
 
-ClientsModel::~ClientsModel()
+ClientsViewModel::~ClientsViewModel()
 {
 
 }
 
-void ClientsModel::initHeader()
+void ClientsViewModel::initHeader()
 {
-    setHeaderSize(1);
     char n[100] = "N";
     char licence[100] = "Номер удостоверения";
     char name[100] = "ФИО";
@@ -47,10 +44,10 @@ void ClientsModel::initHeader()
     for(int i = 0; i < 45 - app_global::numberOfLetters(address); ++i)
         std::strncat(header, " ", 1);
 
-    setHeaderData(CStringData(header, 600), 0);
+    setHeaderData(CStringData(header, 600));
 }
 
-CStringData ClientsModel::data(const ModelIndex &index) const
+CStringData ClientsViewModel::data(const ModelIndex &index) const
 {
     if(m_showList.size() < index.row() - 1
             || !index.isValid())
@@ -61,13 +58,13 @@ CStringData ClientsModel::data(const ModelIndex &index) const
 
     int realRow = index.row() - 1;
     if(realRow < 0)
-        return headerData(index.column());
+        return headerData();
 
     switch (index.column()) {
     case 0:
         return CStringData(index.row());
     case 1:
-        return CStringData(m_showList[realRow].license(), app_global::client::licenseLen);
+        return CStringData(m_showList[realRow].license(), app_global::client::licenseMaxLen);
     case 2:
         return CStringData(m_showList[realRow].name(), app_global::client::nameMaxLen);
     case 3:
@@ -80,46 +77,17 @@ CStringData ClientsModel::data(const ModelIndex &index) const
     return CStringData();
 }
 
-void ClientsModel::setData(const CStringData &, const ModelIndex &)
-{
-
-}
-
-void ClientsModel::clearModel()
-{
-    m_currentStorage.clear();
-    m_showList = m_currentStorage.values();
-}
-
-int ClientsModel::columnCount() const
+int ClientsViewModel::columnCount() const
 {
     return 5;
 }
 
-int ClientsModel::rowCount() const
+int ClientsViewModel::rowCount() const
 {
     return m_showList.size() + 1;
 }
 
-void ClientsModel::removeRow(int row)
+void ClientsViewModel::update(const LinkList<Client> &newStorage)
 {
-    if(m_showList.size() < row)
-        return;
-
-    Client &removedVal = m_showList[row - 1];
-    m_currentStorage.erase(removedVal.license());
-    m_showList = m_currentStorage.values();
-}
-
-void ClientsModel::insertRow(const Client &client)
-{
-    m_currentStorage.insert(client.license(), client);
-    m_showList = m_currentStorage.values();
-}
-
-Client ClientsModel::dataByKey(const char *key)
-{
-    if(m_currentStorage.hasKey(key))
-        return m_currentStorage[key];
-    return Client();
+    m_showList = newStorage;
 }

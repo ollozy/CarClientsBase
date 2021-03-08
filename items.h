@@ -77,8 +77,9 @@ class RentInfo
 public:
     RentInfo();
     RentInfo(const char *clientData,
-              const char *carData,
-              const char *issueDate);
+             const char *carData,
+             const char *issueDate,
+             const char *returnDate = "\0");
     RentInfo(const RentInfo &other);
     ~RentInfo();
 

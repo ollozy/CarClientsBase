@@ -1,4 +1,5 @@
-#include "mainwindow.h"
+//#include "mainwindow.h"
+#include "consoleapplication.h"
 
 /*
  * Предметная область: Обслуживание клиентов в бюро проката автомобилей (см. п. 9.2)
@@ -113,9 +114,14 @@
  * Алгоритм поиска слова в тексте: Прямой
  */
 
-int main(int argc, char *argv[])
-{
-    MainWindow w;
-    w.open();
+const char *carsFile = "/home/mranderson/Education/CarRentalClientsBase/cars.txt";
+const char *clientsFile = "/home/mranderson/Education/CarRentalClientsBase/clients.txt";
+const char *rentFile = "/home/mranderson/Education/CarRentalClientsBase/rentinfo.txt";
+
+int main(int, char **)
+{    
+    ConsoleApplication app;
+    app.load(carsFile, clientsFile, rentFile);
+    app.exec();
     return 0;
 }
