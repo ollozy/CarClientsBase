@@ -241,6 +241,22 @@ public:
         while(!isEmpty())
             erase(begin());
     }
+    void swap(iterator left, iterator right)
+    {
+        if(left == right)
+            return;
+
+        assert(right != nullptr && left != nullptr);
+
+        Node *leftNode = left.__getNode();
+        Node *rightNode = right.__getNode();
+
+        leftNode->next()->setPrevious(rightNode);
+        leftNode->previous()->setNext(rightNode);
+
+        rightNode->next()->setPrevious(leftNode);
+        rightNode->previous()->setNext(leftNode);
+    }
 
 private:
     Node *m_begin;
