@@ -61,31 +61,73 @@ public:
     operator Value () { return *m_ptr->data(); }
     ListIterator operator++(int)
     {
-        if (m_ptr == nullptr) return *this;
-
+        assert(m_ptr != nullptr);
         ListIterator temp = *this;
         ++(*this);
         return temp;
     }
-    ListIterator operator++()
+    ListIterator &operator++()
     {
-        if (m_ptr == nullptr) return *this;
+        assert(m_ptr != nullptr);
         m_ptr = m_ptr->next();
         return *this;
     }
     ListIterator operator--(int)
     {
-        if (m_ptr == nullptr) return *this;
-
+        assert(m_ptr != nullptr);
         ListIterator temp = *this;
         --(*this);
         return temp;
     }
-    ListIterator operator--()
+    ListIterator &operator--()
     {
-        if (m_ptr == nullptr) return *this;
+        assert(m_ptr != nullptr);
         m_ptr = m_ptr->previous();
         return *this;
+    }
+    ListIterator operator+(int i)
+    {
+        ListIterator temp = *this;
+        for(int j = 0; j < i; ++j) {
+            assert(m_ptr != nullptr);
+            temp = temp->next();
+        }
+        return temp;
+    }
+    ListIterator operator-(int i)
+    {
+        ListIterator temp = *this;
+        for(int j = 0; j < i; ++j) {
+            assert(m_ptr != nullptr);
+            temp = temp->previous();
+        }
+        return temp;
+    }
+    ListIterator &operator+=(int i)
+    {
+        for(int j = 0; j < i; ++j) {
+            assert(m_ptr != nullptr);
+            m_ptr = m_ptr->next();
+        }
+        return *this;
+    }
+    ListIterator &operator-=(int i)
+    {
+        for(int j = 0; j < i; ++j) {
+            assert(m_ptr != nullptr);
+            m_ptr = m_ptr->previous();
+        }
+    }
+    int operator-(const ListIterator &right)
+    {
+        ListIterator iter = *this;
+        int count = 0;
+        while(iter != right) {
+            assert(iter.__getNode() != nullptr);
+            ++count;
+            ++iter;
+        }
+        return count;
     }
 
     bool isValid() const { return m_ptr->data() != nullptr; }
