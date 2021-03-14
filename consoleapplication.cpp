@@ -423,10 +423,7 @@ bool ConsoleApplication::removeCar()
             }
         }
         if(!availableForDel) {
-            std::cout << "Невозможно снять с регистрации выданный в аренду автомобиль\n";
-            showUserOutput("Гос. номер: ", 60, deleteData.data());
-            std::cout << std::endl << "(Enter для выхода)";
-            std::cin.get();
+            showEscapeMsg("Невозможно снять с регистрации выданный в аренду автомобиль");
             m_userInputState = false;
             return false;
         }
@@ -487,7 +484,7 @@ void ConsoleApplication::findCar()
         return;
     }
     if(!checkCarNumber(key)) {
-        std::cout << "Неверный формат. Повторите ввод (Enter для выхода): \n";
+        std::cout << "Неверный формат. Повторите ввод: \n";
         if(!getUserInput("Гос. номер автомобиля: ", 60, key, app_global::car::numberMaxLen)) {
             m_userInputState = false;
             return;
@@ -526,8 +523,7 @@ void ConsoleApplication::findCar()
             std::cout << "Автомобиль не арендован\n";
     }
 
-    std::cout << "(Enter для выхода)";
-    std::cin.get();
+    showEscapeMsg("\n");
     m_userInputState = false;
 }
 
@@ -543,7 +539,7 @@ void ConsoleApplication::findClient()
         return;
     }
     if(!checkClientLicense(key)) {
-        std::cout << "Неверный формат. Повторите ввод (Enter для выхода): \n";
+        std::cout << "Неверный формат. Повторите ввод: \n";
         if(!getUserInput("Номер водительского удостоверения: ", 60, key, app_global::client::licenseMaxLen)) {
             m_userInputState = false;
             return;
@@ -578,9 +574,7 @@ void ConsoleApplication::findClient()
         }
     }
 
-    std::cout << std::endl;
-    std::cout << "(Enter для выхода)";
-    std::cin.get();
+    showEscapeMsg("\n");
     m_userInputState = false;
 }
 
@@ -589,7 +583,7 @@ void ConsoleApplication::filterCar()
     m_userInputState = true;
     update();
 
-    char key[app_global::client::licenseMaxLen] = "\0";
+    char key[app_global::car::brandMaxLen] = "\0";
     std::cout << "Введите матрку автомобиля для фильткации результатов\n";
     if(!getUserInput("Марка автомобиля: ", 60, key, app_global::car::brandMaxLen)) {
         m_userInputState = false;
@@ -685,14 +679,26 @@ void ConsoleApplication::setCarAvailable(bool available)
     if(m_listView->selectedItems().isEmpty())
         return;
 
+    m_userInputState = true;
+    update();
+
     int selectedRow = m_listView->selectedItems().begin()->row();
     CStringData number = m_carsViewModel->data(ModelIndex(selectedRow, CarsModel::Number));
-    if(m_carsModel->hasData(number)
-            && ((!m_carsModel->getData(number).available()
-                 && !m_rentInfoModel->hasData(number, RentInfoModel::CarRole))
-                || (m_carsModel->getData(number).available()))) {
+    bool isCarAvailable = m_carsModel->getData(number).available();
+
+    if(!m_carsModel->hasData(number))
+        showEscapeMsg("Автомобиль с таким номером не зарегистрирован");
+    else if(!isCarAvailable
+            && m_rentInfoModel->hasData(number, RentInfoModel::CarRole))
+        showEscapeMsg("Данный автомобиль арендован");
+    else if(available && isCarAvailable)
+        showEscapeMsg("Нозможно вернуть из ремонта автомобиль доступный для аренды");
+    else if(!available && !isCarAvailable)
+        showEscapeMsg("Нозможно отправить в ремонт автомобиль уже находящийся в ремонте");
+    else
         m_carsModel->setAvailable(number, available);
-    }
+
+    m_userInputState = false;
 }
 
 void ConsoleApplication::issueCar()
@@ -717,8 +723,10 @@ void ConsoleApplication::issueCar()
         }
     }
     if(!m_carsModel->getData(CStringData(carKey, app_global::car::numberMaxLen)).available()) {
-        std::cout << "Данные автомобиль не доступен для аренды\n" << std::endl << "(Enter для выхода)";
-        std::cin.get();
+        update();
+        showEscapeMsg("Данные автомобиль не доступен для аренды");
+        m_userInputState = false;
+        return;
     }
 
 
@@ -970,6 +978,12 @@ void ConsoleApplication::showUserOutput(const char *title, int titleMaxLen, int 
     std::cout << std::setw(app_global::realFilledStringSize(title, titleMaxLen))
               << std::setfill('_') << title << ' ' << data << '\n';
     std::cout.unsetf(std::ios_base::adjustfield);
+}
+
+void ConsoleApplication::showEscapeMsg(const char *msg)
+{
+    std::cout << msg << std::endl << std::endl << "(Enter для выхода)";
+    std::cin.get();
 }
 
 AbstractItemModel *ConsoleApplication::modelByType(ConsoleApplication::CurrentModelType type)

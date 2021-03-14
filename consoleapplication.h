@@ -106,6 +106,8 @@ private:
     void showUserOutput(const char *title, int titleMaxLen, const char *data);
     void showUserOutput(const char *title, int titleMaxLen, int data);
 
+    void showEscapeMsg(const char *msg);
+
     AbstractItemModel *modelByType(CurrentModelType type);
 
 private:
