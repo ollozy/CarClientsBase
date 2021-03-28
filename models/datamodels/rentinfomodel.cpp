@@ -17,6 +17,10 @@ RentInfoModel::~RentInfoModel()
 void RentInfoModel::setData(const RentInfo &data)
 {
     m_currentStorage.append(data);
+    app_global::sort(m_currentStorage, m_currentStorage.begin(), --m_currentStorage.end(),
+                     [&](const RentInfo &left, const RentInfo &right){
+        return (std::strncmp(left.carData(), right.carData(), app_global::car::numberMaxLen));
+    });
     notifyViewModel(m_currentStorage);
 }
 

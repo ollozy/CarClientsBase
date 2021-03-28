@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <cctype>
-#include <cstring>
 
 namespace app_global {
 
