@@ -1,13 +1,17 @@
 #ifndef SEARCHTREE_H
 #define SEARCHTREE_H
 
-#include <typeinfo>
 #include <cstring>
 
-template<typename Val, uint KeyLen>
+#include "global.h"
+#include "linklist.h"
+
+;
+
+template<typename Val, int KeyLen>
 class Tree {
 
-    typedef unsigned int uint;
+    using cmpFunc = bool(*)(const Val &, const Val &);
 
     struct Node {
         Node(const Val &data = Val(), const char *key = nullptr, Node *right = nullptr, Node *left = nullptr)
@@ -17,17 +21,18 @@ class Tree {
             , m_rightChild(right)
             , m_leftChild(left) { if(key) std::strncpy(m_key, key, KeyLen); }
         ~Node() { delete[] m_key; }
+
         int balanceFactor() const
         {
-            uint leftHeight = m_leftChild ? m_leftChild->m_height : 0;
-            uint rightHeight = m_rightChild ? m_rightChild->m_height : 0;
+            int leftHeight = m_leftChild ? m_leftChild->m_height : 0;
+            int rightHeight = m_rightChild ? m_rightChild->m_height : 0;
 
             return rightHeight - leftHeight;
         }
         void fixHeight()
         {
-            uint leftHeight = m_leftChild ? m_leftChild->m_height : 0;
-            uint rightHeight = m_rightChild ? m_rightChild->m_height : 0;
+            int leftHeight = m_leftChild ? m_leftChild->m_height : 0;
+            int rightHeight = m_rightChild ? m_rightChild->m_height : 0;
 
             m_height = (leftHeight > rightHeight ? leftHeight : rightHeight) + 1;
         }
@@ -78,13 +83,13 @@ class Tree {
         Node *insertNode(const char *key, const Val &val)
         {
             if(std::strncmp(key, m_key, KeyLen) < 0) {
-                if(m_leftChild != nullptr)
+                if(m_leftChild)
                     m_leftChild = m_leftChild->insertNode(key, val);
                 else
                     m_leftChild = new Node(val, key);
             }
             else if(std::strncmp(key, m_key, KeyLen) > 0) {
-                if(m_rightChild != nullptr)
+                if(m_rightChild)
                     m_rightChild = m_rightChild->insertNode(key, val);
                 else
                     m_rightChild = new Node(val, key);
@@ -120,9 +125,27 @@ class Tree {
             }
             return balance();
         }
+        void storing(LinkList<Val> &storage)
+        {
+            if(m_leftChild)
+                m_leftChild->storing(storage);
+            if(m_rightChild)
+                m_rightChild->storing(storage);
+            storage.append(m_data);
+        }
+        void storing(const Val &val, cmpFunc predicat, LinkList<Val> &storage)
+        {
+            if(m_leftChild)
+                m_leftChild->storing(val, predicat, storage);
+            if(m_rightChild)
+                m_rightChild->storing(val, predicat, storage);
+            if(predicat(val, m_data))
+                storage.append(m_data);
+        }
+
         Val m_data;
         char *m_key;
-        uint m_height;
+        int m_height;
         Node *m_rightChild;
         Node *m_leftChild;
     };
@@ -134,19 +157,25 @@ public:
     const Val &operator[](const char *key) const;
     Val &operator[](const char *key);
 
-    Val get(const char *key) const;
+    Val value(const char *key) const;
+    LinkList<Val> values() const;
+
+    bool hasKey(const char *key) const;
+
     void insert(const char *key, const Val &val);
     void erase(const char *key);
     void clear();
 
-    uint size() const { return m_size; }
+    LinkList<Val> find(const Val &searchVal, cmpFunc predicat);
+
+    int size() const { return m_size; }
 
 private:
     Node *m_rootNode;
-    uint m_size;
+    int m_size;
 };
 
-template<typename Val, uint KeyLen>
+template<typename Val, int KeyLen>
 Val &Tree<Val, KeyLen>::operator[](const char *key)
 {
     Node *searchNode = m_rootNode;
@@ -167,19 +196,13 @@ Val &Tree<Val, KeyLen>::operator[](const char *key)
     if(searchNode)
         return searchNode->m_data;
     else {
-        Q_ASSERT_X(searchNode, "Tree::get", "Attemp access to nonexistent node");
+        assert(searchNode);
         return m_rootNode->m_data;
     }
 }
 
-template<typename Val, uint KeyLen>
+template<typename Val, int KeyLen>
 const Val &Tree<Val, KeyLen>::operator[](const char *key) const
-{
-    return operator[](key);
-}
-
-template<typename Val, uint KeyLen>
-Val Tree<Val, KeyLen>::get(const char *key) const
 {
     Node *searchNode = m_rootNode;
     while(searchNode && std::strncmp(key, searchNode->m_key, KeyLen) != 0) {
@@ -199,12 +222,61 @@ Val Tree<Val, KeyLen>::get(const char *key) const
     if(searchNode)
         return searchNode->m_data;
     else {
-        Q_ASSERT_X(searchNode, "Tree::get", "Attemp access to nonexistent node");
-        return Val();
+        assert(searchNode);
+        return m_rootNode->m_data;
     }
 }
 
-template<typename Val, uint KeyLen>
+template<typename Val, int KeyLen>
+Val Tree<Val, KeyLen>::value(const char *key) const
+{
+    if(!m_rootNode)
+        return Val();
+
+    Node *searchNode = m_rootNode;
+    while(searchNode) {
+        if(std::strncmp(key, searchNode->m_key, KeyLen) > 0)
+            searchNode = searchNode->m_rightChild;
+        else if(std::strncmp(key, searchNode->m_key, KeyLen) < 0)
+            searchNode = searchNode->m_leftChild;
+        else
+            return searchNode->m_data;
+    }
+    assert(searchNode);
+    return Val();
+
+}
+
+template<typename Val, int KeyLen>
+LinkList<Val> Tree<Val, KeyLen>::values() const
+{
+    LinkList<Val> storage;
+    if(!m_rootNode)
+        return storage;
+
+    m_rootNode->storing(storage);
+    return storage;
+}
+
+template<typename Val, int KeyLen>
+bool Tree<Val, KeyLen>::hasKey(const char *key) const
+{
+    if(!m_rootNode)
+        return false;
+
+    Node *searchNode = m_rootNode;
+    while(searchNode) {
+        if(std::strncmp(key, searchNode->m_key, KeyLen) > 0)
+            searchNode = searchNode->m_rightChild;
+        else if(std::strncmp(key, searchNode->m_key, KeyLen) < 0)
+            searchNode = searchNode->m_leftChild;
+        else
+            return true;
+    }
+    return false;
+}
+
+template<typename Val, int KeyLen>
 void Tree<Val, KeyLen>::insert(const char *key, const Val &val)
 {
     ++m_size;
@@ -215,7 +287,7 @@ void Tree<Val, KeyLen>::insert(const char *key, const Val &val)
     m_rootNode = m_rootNode->insertNode(key, val);
 }
 
-template<typename Val, uint KeyLen>
+template<typename Val, int KeyLen>
 void Tree<Val, KeyLen>::erase(const char *key)
 {
     --m_size;
@@ -224,12 +296,22 @@ void Tree<Val, KeyLen>::erase(const char *key)
     m_rootNode = m_rootNode->eraceNode(key);
 }
 
-template<typename Val, uint KeyLen>
+template<typename Val, int KeyLen>
 void Tree<Val, KeyLen>::clear()
 {
     while (m_rootNode != nullptr) {
         erase(m_rootNode->m_key);
     }
+}
+
+template<typename Val, int KeyLen>
+LinkList<Val> Tree<Val, KeyLen>::find(const Val &searchVal, cmpFunc predicat)
+{
+    LinkList<Val> storage;
+    if(!m_rootNode)
+        return storage;
+    m_rootNode->storing(searchVal, predicat, storage);
+    return storage;
 }
 
 #endif // SEARCHTREE_H

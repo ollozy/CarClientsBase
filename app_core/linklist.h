@@ -1,7 +1,9 @@
 #ifndef LINK_LIST
 #define LINK_LIST
 
-#include <QObject>
+#include "global.h"
+
+#include <iostream>
 
 template<typename T> class LinkList;
 template<typename Node> class ListIterator;
@@ -12,7 +14,7 @@ class node
 public:
     using Value = T;
 
-    node() : m_data(nullptr), m_next(this) {}
+    node() : m_data(nullptr), m_next(this), m_previous(this) {}
     node(Value *data, node *next, node *prev)
         : m_data(data)
         , m_next(next)
@@ -30,9 +32,9 @@ public:
     void setData(Value *data) { m_data = data; }
 
 private:
+    Value *m_data;
     node *m_next;
     node *m_previous;
-    Value *m_data;
 };
 
 template<typename Node>
@@ -41,8 +43,9 @@ class ListIterator
     using Value = typename Node::Value;
 public:
 
-    explicit ListIterator(Node* node = nullptr) : m_ptr(node) {}
+    ListIterator() { m_ptr = nullptr; }
     ListIterator(const ListIterator &other) { m_ptr = other.m_ptr; }
+    explicit ListIterator(Node* node) : m_ptr(node) {}
 
     ListIterator &operator=(const ListIterator &other)
     {
@@ -54,41 +57,101 @@ public:
     }
     Value& operator*() { return *m_ptr->data(); }
     const Value &operator*() const { return *m_ptr->data(); }
-    Node *operator->() { return m_ptr; }
+    Value *operator->() { return m_ptr->data(); }
     bool operator==(const ListIterator &rightIter) const { return m_ptr == rightIter.m_ptr; }
     bool operator!=(const ListIterator &rightIter) const { return m_ptr != rightIter.m_ptr; }
     bool operator!() const { return m_ptr == nullptr; }
     operator Value () { return *m_ptr->data(); }
     ListIterator operator++(int)
     {
-        if (m_ptr == nullptr) return *this;
-
+        assert(m_ptr != nullptr);
         ListIterator temp = *this;
         ++(*this);
         return temp;
     }
-    ListIterator operator++()
+    ListIterator &operator++()
     {
-        if (m_ptr == nullptr) return *this;
+        assert(m_ptr != nullptr);
         m_ptr = m_ptr->next();
         return *this;
     }
     ListIterator operator--(int)
     {
-        if (m_ptr == nullptr) return *this;
-
+        assert(m_ptr != nullptr);
         ListIterator temp = *this;
         --(*this);
         return temp;
     }
-    ListIterator operator--()
+    ListIterator &operator--()
     {
-        if (m_ptr == nullptr) return *this;
+        assert(m_ptr != nullptr);
         m_ptr = m_ptr->previous();
         return *this;
     }
+    ListIterator operator+(int i)
+    {
+        ListIterator temp = *this;
+        for(int j = 0; j < i; ++j) {
+            assert(m_ptr != nullptr);
+            ++temp;
+        }
+        return temp;
+    }
+    ListIterator operator-(int i)
+    {
+        ListIterator temp = *this;
+        for(int j = 0; j < i; ++j) {
+            assert(m_ptr != nullptr);
+            --temp;
+        }
+        return temp;
+    }
+    ListIterator &operator+=(int i)
+    {
+        for(int j = 0; j < i; ++j) {
+            assert(m_ptr != nullptr);
+            m_ptr = m_ptr->next();
+        }
+        return *this;
+    }
+    ListIterator &operator-=(int i)
+    {
+        for(int j = 0; j < i; ++j) {
+            assert(m_ptr != nullptr);
+            m_ptr = m_ptr->previous();
+        }
+    }
+    int operator-(const ListIterator &right)
+    {
+        assert(!(right > *this));
+        ListIterator iter = right;
+        int count = 0;
+        while(iter != *this) {
+            ++count;
+            ++iter;
+        }
+        return count;
+    }
+    bool operator<(const ListIterator &right) const
+    {
+        assert(right.__getNode() != nullptr);
+        if(*this == right)
+            return false;
 
-    bool isValid() const { return m_ptr->data() != nullptr; }
+        ListIterator iter(m_ptr);
+        while(iter.m_ptr != nullptr) {
+            if(iter == right)
+                return true;
+            ++iter;
+        }
+        return false;
+    }
+    bool operator>(const ListIterator &left) const
+    {
+        return !(*this < left) && *this != left;
+    }
+
+    bool isValid() const { return m_ptr != nullptr && m_ptr->data() != nullptr; }
 
     Node *__getNode() const { return m_ptr; }
 
@@ -104,7 +167,7 @@ class LinkList
 public:
     typedef ListIterator<Node> iterator;
 
-    LinkList() : m_end(m_begin), m_begin(new Node(new T(), nullptr, nullptr)), m_size(0) {}
+    LinkList() : m_begin(new Node(new T(), nullptr, nullptr)), m_end(m_begin), m_size(0) {}
     LinkList(const LinkList<T>& li)
     {
         for(LinkList<T>::iterator iter = li.begin(); iter != li.end(); ++iter)
@@ -126,6 +189,8 @@ public:
         if (this == &li)
             return *this;
 
+        clear();
+
         for(LinkList<T>::iterator it = li.begin(); it != li.end(); ++it)
             append(*it);
 
@@ -133,7 +198,7 @@ public:
     }
     T& operator[](int i)
     {
-        Q_ASSERT_X(i < m_size, "LinkList<T>::operator[]", "index out of range");
+        assert(i < m_size);
         if(!(i < m_size))
             return *m_end->data();
         Node *pNode = m_begin;
@@ -143,7 +208,7 @@ public:
     }
     const T& operator[](int i) const
     {
-        Q_ASSERT_X(i < m_size, "LinkList<T>::operator[]", "index out of range");
+        assert(i < m_size);
         if(!(i < m_size))
             return *m_end->data();
         Node *pNode = m_begin;
@@ -152,6 +217,13 @@ public:
         return *pNode->data();
     }
 
+    bool contains(const T &val) const
+    {
+        for(LinkList<T>::iterator it = begin(); it != end(); ++it)
+            if(*it == val)
+                return true;
+        return false;
+    }
     void append(const T &val)
     {
         if(isEmpty()) {
@@ -183,7 +255,7 @@ public:
 
     iterator insert(const T& val, iterator before)
     {
-        Q_ASSERT_X(before.__getNode(), "LinkList::insert", "The specified iterator argument 'before' is invalid");
+        assert(before.__getNode());
         if(!before.__getNode())
             return iterator();
         else if(before.__getNode() == m_begin) {
@@ -204,7 +276,7 @@ public:
     }
     iterator erase(iterator delIter)
     {
-        Q_ASSERT_X(delIter.isValid(), "LinkList::erase", "The specified iterator argument 'delIter' is invalid");
+        assert(delIter.isValid());
         if(!delIter.isValid())
             return iterator();
         else if(delIter.__getNode() == m_begin) {
@@ -231,6 +303,53 @@ public:
     {
         while(!isEmpty())
             erase(begin());
+    }
+    void swap(iterator left, iterator right)
+    {
+        if(left == right)
+            return;
+
+        Node *leftNode = left.__getNode();
+        Node *rightNode = right.__getNode();
+
+        assert(right.__getNode() != nullptr && left.__getNode() != nullptr && right.__getNode() != m_end);
+
+        if(leftNode == m_begin)
+            m_begin = rightNode;
+
+        if(leftNode->next() == rightNode) {
+            Node *rTemp = rightNode->next();
+            Node *lTemp = leftNode->previous();
+
+            rightNode->setNext(leftNode);
+            leftNode->setNext(rTemp);
+
+            leftNode->setPrevious(rightNode);
+            rightNode->setPrevious(lTemp);
+
+            rTemp->setPrevious(leftNode);
+            if(lTemp)
+                lTemp->setNext(rightNode);
+            return;
+        }
+
+        Node *llTemp = leftNode->previous();
+        Node *rrTemp = rightNode->next();
+        Node *lrTemp = leftNode->next();
+        Node *rlTemp = rightNode->previous();
+
+        rightNode->setNext(lrTemp);
+        leftNode->setNext(rrTemp);
+
+        rightNode->setPrevious(llTemp);
+        leftNode->setPrevious(rlTemp);
+
+        if(llTemp)
+            llTemp->setNext(rightNode);
+
+        rrTemp->setPrevious(leftNode);
+        lrTemp->setPrevious(rightNode);
+        rlTemp->setNext(leftNode);
     }
 
 private:
