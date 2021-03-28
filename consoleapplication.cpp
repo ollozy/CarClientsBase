@@ -413,20 +413,10 @@ bool ConsoleApplication::removeCar()
 
     int rowForDel = m_listView->selectedItems().begin()->row();
     CStringData deleteData = m_carsViewModel->data(ModelIndex(rowForDel, CarsModel::Number));
-    if(m_rentInfoModel->hasData(deleteData, RentInfoModel::CarRole)) {
-        LinkList<RentInfo> rents = m_rentInfoModel->getData(deleteData, RentInfoModel::CarRole);
-        bool availableForDel = true;
-        for(LinkList<RentInfo>::iterator iter = rents.begin(); iter != rents.end(); ++iter) {
-            if(std::strlen(iter->returnDate()) == 0) {
-                availableForDel = false;
-                break;
-            }
-        }
-        if(!availableForDel) {
-            showEscapeMsg("Невозможно снять с регистрации выданный в аренду автомобиль");
-            m_userInputState = false;
-            return false;
-        }
+    if(carIsRented(deleteData.data())) {
+        showEscapeMsg("Невозможно снять с регистрации выданный в аренду автомобиль");
+        m_userInputState = false;
+        return false;
     }
     m_carsModel->removeData(deleteData);
     if(rowForDel > m_carsViewModel->rowCount())
@@ -446,23 +436,10 @@ bool ConsoleApplication::removeClient()
 
     int rowForDel = m_listView->selectedItems().begin()->row();
     CStringData deleteData = m_clientsViewModel->data(ModelIndex(rowForDel, ClientsModel::License));
-    if(m_rentInfoModel->hasData(deleteData, RentInfoModel::ClientRole)) {
-        LinkList<RentInfo> rents = m_rentInfoModel->getData(deleteData, RentInfoModel::ClientRole);
-        bool availableForDel = true;
-        for(LinkList<RentInfo>::iterator iter = rents.begin(); iter != rents.end(); ++iter) {
-            if(std::strlen(iter->returnDate()) == 0) {
-                availableForDel = false;
-                break;
-            }
-        }
-        if(!availableForDel) {
-            std::cout << "Невозможно снять с регистрации клиента имеющего арендованные автомобили\n";
-            showUserOutput("Номер водительского удостоверения: ", 60, deleteData.data());
-            std::cout << std::endl << "(Enter для продолжения)";
-            std::cin.get();
-            m_userInputState = false;
-            return false;
-        }
+    if(clientHasCar(deleteData.data())) {
+        showEscapeMsg("Невозможно снять с регистрации клиента имеющего арендованные автомобили");
+        m_userInputState = false;
+        return false;
     }
     m_clientsModel->removeData(deleteData);
     if(rowForDel > m_clientsViewModel->rowCount())
@@ -503,24 +480,26 @@ void ConsoleApplication::findCar()
         showUserOutput("Год выпуска автомобиля ", 60, foundCar.year());
         std::cout << std::endl;
 
-        if(!foundCar.available()) {
-            LinkList<RentInfo> rents = m_rentInfoModel->getData(CStringData(foundCar.number(),
-                                                                            app_global::car::numberMaxLen),
-                                                                RentInfoModel::CarRole);
-            if(!rents.isEmpty()) {
-                std::cout << "Автомобиль выдан в аренду клиенту\n";
-                for(LinkList<RentInfo>::iterator iter = rents.begin(); iter != rents.end(); ++iter) {
-                    Client foundClient = m_clientsModel->getData(CStringData(iter->clientData(),
-                                                                             app_global::client::licenseMaxLen));
-                    if(checkClientLicense(foundClient.license()) && std::strlen(iter->returnDate()) == 0) {
-                        showUserOutput("Номер водительского удостоверения клиента ", 60, foundClient.license());
-                        showUserOutput("ФИО ", 60, foundClient.name());
-                    }
-                }
-            }
+        if(!carIsRented(foundCar.number())) {
+            showEscapeMsg("Автомобиль не арендован");
+            m_userInputState = false;
+            return;
         }
-        else
-            std::cout << "Автомобиль не арендован\n";
+        LinkList<RentInfo> rents = m_rentInfoModel->getData(CStringData(foundCar.number(),
+                                                                        app_global::car::numberMaxLen),
+                                                            RentInfoModel::CarRole);
+        for(LinkList<RentInfo>::iterator iter = rents.begin(); iter != rents.end(); ++iter) {
+            if(std::strlen(iter->returnDate()) != 0 || !checkCarNumber(foundCar.number()))
+                continue;
+
+            Client foundClient = m_clientsModel->getData(CStringData(iter->clientData(),
+                                                                     app_global::client::licenseMaxLen));
+            if(!checkClientLicense(foundClient.license()))
+                continue;
+
+            showUserOutput("Номер водительского удостоверения клиента ", 60, foundClient.license());
+            showUserOutput("ФИО ", 60, foundClient.name());
+        }
     }
 
     showEscapeMsg("\n");
@@ -558,19 +537,24 @@ void ConsoleApplication::findClient()
         showUserOutput("Адрес ", 60, foundClient.address());
         std::cout << std::endl;
 
+        if(!clientHasCar(foundClient.license())) {
+            showEscapeMsg("Клиент не имеет арендованых автомобилей");
+            m_userInputState = false;
+            return;
+        }
+
         LinkList<RentInfo> rents = m_rentInfoModel->getData(CStringData(foundClient.license(),
                                                                         app_global::client::licenseMaxLen),
                                                             RentInfoModel::ClientRole);
-        if(rents.isEmpty())
-            std::cout << "Клиент не имеет арендованых автомобилей\n";
-        else {
-            std::cout << "Клиент имеет в аренде автомобили\n";
-            for(LinkList<RentInfo>::iterator iter = rents.begin(); iter != rents.end(); ++iter) {
-                Car foundCar = m_carsModel->getData(CStringData(iter->carData(),
-                                                                app_global::car::numberMaxLen));
-                if(checkCarNumber(foundCar.number()) && std::strlen(iter->returnDate()) == 0)
-                    showUserOutput("Гос. номер ", 60, foundCar.number());
-            }
+        std::cout << "Клиент имеет в аренде автомобили\n";
+        for(LinkList<RentInfo>::iterator iter = rents.begin(); iter != rents.end(); ++iter) {
+            if(std::strlen(iter->returnDate()) != 0)
+                continue;
+
+            Car foundCar = m_carsModel->getData(CStringData(iter->carData(),
+                                                            app_global::car::numberMaxLen));
+            if(checkCarNumber(foundCar.number()))
+                showUserOutput("Гос. номер ", 60, foundCar.number());
         }
     }
 
@@ -649,10 +633,12 @@ void ConsoleApplication::clearCars()
 
     m_listView->clearSelection();
     m_listView->selectNext();
-    for(int i = 0; i < m_carsViewModel->rowCount() + 1; ++i) {
+    while(m_listView->selectedItems().begin()->row() < m_carsViewModel->rowCount()) {
         if(!removeCar())
             m_listView->selectNext();
         update();
+        if(m_listView->selectedItems().isEmpty())
+            break;
     }
 
     m_userInputState = false;
@@ -665,10 +651,12 @@ void ConsoleApplication::clearClients()
 
     m_listView->clearSelection();
     m_listView->selectNext();
-    for(int i = 0; i < m_carsViewModel->rowCount(); ++i) {
+    while(m_listView->selectedItems().begin()->row() < m_carsViewModel->rowCount()) {
         if(!removeClient())
             m_listView->selectNext();
         update();
+        if(m_listView->selectedItems().isEmpty())
+            break;
     }
 
     m_userInputState = false;
@@ -688,8 +676,7 @@ void ConsoleApplication::setCarAvailable(bool available)
 
     if(!m_carsModel->hasData(number))
         showEscapeMsg("Автомобиль с таким номером не зарегистрирован");
-    else if(!isCarAvailable
-            && m_rentInfoModel->hasData(number, RentInfoModel::CarRole))
+    else if(carIsRented(number.data()))
         showEscapeMsg("Данный автомобиль арендован");
     else if(available && isCarAvailable)
         showEscapeMsg("Нозможно вернуть из ремонта автомобиль доступный для аренды");
@@ -984,6 +971,51 @@ void ConsoleApplication::showEscapeMsg(const char *msg)
 {
     std::cout << msg << std::endl << std::endl << "(Enter для выхода)";
     std::cin.get();
+}
+
+bool ConsoleApplication::carIsRented(const char *number)
+{
+    bool rented = false;
+    if(!checkCarNumber(number))
+        return rented;
+    if(!m_carsModel->hasData(CStringData(number, app_global::car::numberMaxLen)))
+        return rented;
+    if(!m_rentInfoModel->hasData(CStringData(number, app_global::car::numberMaxLen),
+                                 RentInfoModel::CarRole))
+        return rented;
+
+    Car foundCar = m_carsModel->getData(CStringData(number, app_global::car::numberMaxLen));
+    if(!foundCar.available()) {
+
+        LinkList<RentInfo> rents = m_rentInfoModel->getData(CStringData(number, app_global::car::numberMaxLen),
+                                                            RentInfoModel::CarRole);
+        if(rents.isEmpty())
+            return rented;
+
+        for(LinkList<RentInfo>::iterator iter = rents.begin(); iter != rents.end(); ++iter) {
+            if(std::strlen(iter->returnDate()) == 0)
+                rented = true;
+        }
+    }
+    return rented;
+}
+
+bool ConsoleApplication::clientHasCar(const char *number)
+{
+    bool hasRent = false;
+    if(!checkClientLicense(number))
+        return hasRent;
+    if(!m_clientsModel->hasData(CStringData(number, app_global::client::licenseMaxLen)))
+        return hasRent;
+    if(!m_rentInfoModel->hasData(CStringData(number, app_global::client::licenseMaxLen),
+                                 RentInfoModel::ClientRole))
+        return hasRent;
+    LinkList<RentInfo> rents = m_rentInfoModel->getData(CStringData(number, app_global::client::licenseMaxLen),
+                                                        RentInfoModel::ClientRole);
+    if(!rents.isEmpty())
+        hasRent = true;
+
+    return hasRent;
 }
 
 AbstractItemModel *ConsoleApplication::modelByType(ConsoleApplication::CurrentModelType type)

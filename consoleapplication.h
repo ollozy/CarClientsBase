@@ -108,6 +108,9 @@ private:
 
     void showEscapeMsg(const char *msg);
 
+    bool carIsRented(const char *number);
+    bool clientHasCar(const char *number);
+
     AbstractItemModel *modelByType(CurrentModelType type);
 
 private:
